@@ -58,6 +58,8 @@
 #' @param pcaAlpha Decimal | Alpha used for the points that don't change in the pca plot. Default value: 0.2.
 #' @param pcaSize Decimal | Size used for the points that change in the pca plot. Default value: 1.4.
 #'
+#' @param oddsDefaultValues String | Parámetro indicando para cada predictor categórico
+#'
 #' @export
 #'
 #' @examples
@@ -112,7 +114,9 @@ detectAnomalies <- function(
     mutationProbability = 0.1,
     seed = 1234,
     pcaAlpha = 0.2,
-    pcaSize = 1.4
+    pcaSize = 1.4,
+    oddsDefaultValues = character(0),
+    oddPredictorsToIgnore = NULL
 ){
 
 
@@ -166,6 +170,14 @@ detectAnomalies <- function(
   }
 
   if (!require("DT", character.only = TRUE)) {
+    return("The package DT is not installed")
+  }
+
+  if (!require("jsmodule", character.only = TRUE)) {
+    return("The package DT is not installed")
+  }
+
+  if (!require("ggpubr", character.only = TRUE)) {
     return("The package DT is not installed")
   }
 
@@ -233,6 +245,33 @@ detectAnomalies <- function(
     return("The only valid formats for clinic data are: .tsv and .csv")
   }
 
+  ### RELEVEL CLINIC DATA ###
+
+  defaultOddsPredictors <- character(0)
+
+  # Función para convertir a factor un predictor de un dataframe con un primer valor como valor por defecto (primer level)
+  convert_to_factor <- function(df, predictor, default_value) {
+    df[[predictor]] <- factor(df[[predictor]], levels = c(default_value, setdiff(unique(df[[predictor]]), default_value)))
+    return(df)
+  }
+
+  # De cada cadena separamos por ":" siendo lo de la izquierda el predictor y lo de la derecha lo que queremos que sea el valor por defecto (primer level)
+  for (entry in oddsDefaultValues) {
+    parts <- unlist(strsplit(entry, ":"))
+    predictor <- parts[1]
+
+    if(!predictor %in% numericActivePredictors){
+
+      defaultOddsPredictors <- c(defaultOddsPredictors, predictor)
+      default_value <- parts[2]
+      clinicData <- convert_to_factor(clinicData, predictor, default_value)
+
+    }
+  }
+
+
+
+  ### RELEVEL CLINIC DATA ###
 
   #### CHECKING PARAMETERS ####
 
@@ -255,6 +294,7 @@ detectAnomalies <- function(
     }
 
   }
+
 
   if(is.null(activePredictors) & !is.null(numericActivePredictors) & !is.null(categoricActivePredictors)){
 
@@ -779,6 +819,38 @@ detectAnomalies <- function(
       secondGroup = secondGroup,
       activePredictors = activePredictors,
       classVariable = classVariable
+    )
+
+  }
+
+  if(!is.null(categoricActivePredictors) & !is.null(numericActivePredictors)){
+
+    cat("Performing stadistic analysis with the variable classification specified by the user.\n")
+    MLASDO::performStadisticAnalysisUserVariableClassification(
+      savingName = savingName,
+      changedClinicData = changedClinicData,
+      firstGroup = firstGroup,
+      secondGroup = secondGroup,
+      activePredictors = activePredictors,
+      categoricActivePredictors = categoricActivePredictors,
+      numericActivePredictors = numericActivePredictors,
+      classVariable = classVariable,
+      oddPredictorsToIgnore = oddPredictorsToIgnore,
+      oddsDefaultValues = oddsDefaultValues
+    )
+
+  } else {
+
+    cat("Performing stadistic analysis with automated variable classification.\n")
+    MLASDO::performStadisticAnalysisAutomatedVariableClassification(
+      savingName = savingName,
+      changedClinicData = changedClinicData,
+      firstGroup = firstGroup,
+      secondGroup = secondGroup,
+      activePredictors = activePredictors,
+      classVariable = classVariable,
+      oddPredictorsToIgnore = oddPredictorsToIgnore,
+      oddsDefaultValues = oddsDefaultValues
     )
 
   }

@@ -8,18 +8,19 @@ executeGA(
   savingName,
   omicData,
   subsetTrain,
-  activePredictors,
   classVariable,
   idColumn,
   mlAlgorithm,
   numModelExecutions,
+  bestLambda,
   predictorsToSelect,
   numTrees,
   mtry,
-  splitrule,
+  splitRule,
   sampleFraction,
   maxDepth,
   minNodeSize,
+  maximumChangePercentage,
   nIterations,
   nStopIter,
   populationSize,
@@ -40,8 +41,6 @@ executeGA(
 
 \item{subsetTrain}{Array of Integer | Subset of train samples.}
 
-\item{activePredictors}{Array of Strings | Predictors on which the study of the ratios will be conducted after the genetic algorithm has been performed. Default value: All the predictors in clinic data, except classVariable and idColumn.}
-
 \item{classVariable}{String | Target variable, which must be binary, meaning it has two possible values. If the user does not specify a path to his own data, the value for the sample data, Ca.Co.Last, will be used.}
 
 \item{idColumn}{String | Variable that indicates the identifier of each patient in both datasets. If the user does not specify a path to his own data, the value for the sample data, Trial, will be used.}
@@ -50,19 +49,23 @@ executeGA(
 
 \item{numModelExecutions}{Integer | Number of times the Lasso algorithm is executed. Default value: 5.}
 
+\item{bestLambda}{Decimal/Bool | It indicates when to perform cv to find the best lambda for the Lasso model (Bool = FALSE) and when not (Decimal). If the value is FALSE, the best lambda found for the Baseline Lasso model will be used for all the Lasso models.}
+
 \item{predictorsToSelect}{Integer | Number of predictors to be selected from the most important predictors ranked by the RF model. This parameter is a integer number between 1 and the total number of predictors in the data. Default value: 15.}
 
 \item{numTrees}{Integer | Number of trees of the Random Forest model. Default value: 100.}
 
 \item{mtry}{Integer | Number of predictors that are evaluated at each partition (node) of each tree. Default value: 225.}
 
-\item{splitrule}{String | This is the rule used by the algorithm to select the predictor and the optimal value to separate a node into two branches during the tree construction. Default value: gini.}
+\item{splitRule}{String | This is the rule used by the algorithm to select the predictor and the optimal value to separate a node into two branches during the tree construction. Default value: gini.}
 
 \item{sampleFraction}{Decimal | Fraction of the training data that will be used to create each of the trees in the forest. Default value: 1.}
 
 \item{maxDepth}{Integer | Maximum height of each tree in the forest. Default value: 4.}
 
 \item{minNodeSize}{Integer | Minimum number of observations required in a node to be able to split it. Default value: 30.}
+
+\item{maximumChangePercentage}{Decimal | Percentage (expressed as a fraction) indicating the maximum percentage of samples that can be changed. Default value: 0.2 (20%).}
 
 \item{nIterations}{Integer | Number of iterations (generations) the genetic algorithm will perform. Default value: 200.}
 
@@ -89,7 +92,8 @@ executeGA(
 \description{
 Methodology based on the combination of a genetic algorithm and a Machine Learning technique to mutate the final
 diagnosis of patients, detecting anomalies in them.
-
+}
+\details{
 These discrepancies may have their origin in the evolution of the subject itself, leading it from one group to
 another in biological terms, or they may derive from human error in the labelling of the samples, among other causes.
 
@@ -121,5 +125,5 @@ and the machine learning algorithm evidences this detection, validating that the
 }
 \examples{
 
-MLASDO::executeGA(mlAlgorithm = mlAlgorithm, numModelExecutions = numModelExecutions, predictorsToSelect = predictorsToSelect, numTrees = numTrees, mtry = mtry, splitrule = splitrule, sampleFraction = sampleFraction, maxDepth = maxDepth, minNodeSize = minNodeSize, omicData = omicData, subsetTrain = subsetTrain, activePredictors = activePredictors, classVariable = classVariable, idColumn = idColumn, savingName = savingName, nCores = nCores, nIterations = nIterations, nStopIter = nStopIter, populationSize = populationSize, diagnosticChangeProbability = diagnosticChangeProbability, crossoverOperator = crossoverOperator, crossoverProbability = crossoverProbability, selectionOperator = selectionOperator, mutationOperator = mutationOperator, mutationProbability = mutationProbability, seed = seed)
+MLASDO::executeGA(mlAlgorithm = mlAlgorithm, numModelExecutions = numModelExecutions, bestLambda = bestLambda, predictorsToSelect = predictorsToSelect, numTrees = numTrees, mtry = mtry, splitRule = splitRule, sampleFraction = sampleFraction, maxDepth = maxDepth, minNodeSize = minNodeSize, omicData = omicData, subsetTrain = subsetTrain, classVariable = classVariable, idColumn = idColumn, savingName = savingName, nCores = nCores, maximumChangePercentage = maximumChangePercentage, nIterations = nIterations, nStopIter = nStopIter, populationSize = populationSize, diagnosticChangeProbability = diagnosticChangeProbability, crossoverOperator = crossoverOperator, crossoverProbability = crossoverProbability, selectionOperator = selectionOperator, mutationOperator = mutationOperator, mutationProbability = mutationProbability, seed = seed)
 }

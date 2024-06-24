@@ -8,38 +8,45 @@ detectAnomalies(
   justAnalysis = FALSE,
   solutionPath = "",
   geneticPath = "",
-  bestModelPath = "",
-  worstModelPath = "",
+  bestModelAfterDetectionPath = "",
   lassoPredictorsPath = "",
   mlAlgorithm,
   predictorsToSelect = 15,
   numModelExecutions = 5,
   numTrees = 100,
   mtry = 225,
-  splitrule = "gini",
+  splitRule = "gini",
   sampleFraction = 1,
   maxDepth = 4,
   minNodeSize = 30,
+  bestLambda = FALSE,
   omicDataPath = "",
   clinicDataPath = "",
   omicPredictorsToIgnore = NULL,
   clinicPredictorsToIgnore = NULL,
   idColumn,
   activePredictors = NULL,
+  numericActivePredictors = NULL,
+  categoricActivePredictors = NULL,
   classVariable,
   savingName = "",
+  maximumChangePercentage = 0.2,
   nCores = 6,
   partitionPercentage = 0.9,
   nIterations = 200,
   nStopIter = 25,
   populationSize = 150,
   diagnosticChangeProbability = 0.1,
-  crossoverOperator = gabin_spCrossover,
+  crossoverOperator = "gabin_spCrossover",
   crossoverProbability = 0.8,
-  selectionOperator = gabin_tourSelection,
-  mutationOperator = gabin_raMutation,
+  selectionOperator = "gabin_tourSelection",
+  mutationOperator = "gabin_raMutation",
   mutationProbability = 0.1,
-  seed = 1234
+  seed = 1234,
+  pcaAlpha = 0.2,
+  pcaSize = 1.4,
+  oddsDefaultValues = character(0),
+  oddPredictorsToIgnore = NULL
 )
 }
 \arguments{
@@ -49,9 +56,7 @@ detectAnomalies(
 
 \item{geneticPath}{String | Path to genetic algorithm object.}
 
-\item{bestModelPath}{String | Path to the best model obtained.}
-
-\item{worstModelPath}{String | Path to the worst model obtained.}
+\item{bestModelAfterDetectionPath}{String | Path to the best model obtained after the detection.}
 
 \item{lassoPredictorsPath}{String | Path to the mean number of predictors selected by Lasso in each generation.}
 
@@ -65,13 +70,15 @@ detectAnomalies(
 
 \item{mtry}{Integer | Number of predictors that are evaluated at each partition (node) of each tree. Default value: 225.}
 
-\item{splitrule}{String | This is the rule used by the algorithm to select the predictor and the optimal value to separate a node into two branches during the tree construction. Default value: gini.}
+\item{splitRule}{String | This is the rule used by the algorithm to select the predictor and the optimal value to separate a node into two branches during the tree construction. Default value: gini.}
 
 \item{sampleFraction}{Decimal | Fraction of the training data that will be used to create each of the trees in the forest. Default value: 1.}
 
 \item{maxDepth}{Integer | Maximum height of each tree in the forest. Default value: 4.}
 
 \item{minNodeSize}{Integer | Minimum number of observations required in a node to be able to split it. Default value: 30.}
+
+\item{bestLambda}{Bool | It indicates when to perform cv to find the best lambda for the Lasso model (TRUE) and when not (FALSE). If the value is FALSE, the best lambda found for the Baseline Lasso model will be used for all the Lasso models.}
 
 \item{omicDataPath}{String | Path to omic data. If the user does not specify a path, the sample data will be used.}
 
@@ -85,9 +92,15 @@ detectAnomalies(
 
 \item{activePredictors}{Array of Strings | Predictors on which the study of the ratios will be conducted after the genetic algorithm has been performed. Default value: All the predictors in clinic data, except classVariable and idColumn.}
 
+\item{numericActivePredictors}{Array of Strings | Numerical predictors of the active predictor list. Default value: All predictors in the active predictor list that return TRUE in the is.numeric function or return TRUE in the is.integer function and have 7 or more distinct values.}
+
+\item{categoricActivePredictors}{Array of Strings | Categoric predictors of the active predictor list. Default value: All predictors in the active predictor list that return FALSE in the is.numeric function or return TRUE in the is.integer function and have less than 7 distinct values.}
+
 \item{classVariable}{String | Target variable, which must be binary, meaning it has two possible values. If the user does not specify a path to his own data, the value for the sample data, Ca.Co.Last, will be used.}
 
 \item{savingName}{String | Name under which the model and solution will be saved after execution. If the user does not set any name, it will create a string with the current date.}
+
+\item{maximumChangePercentage}{Decimal | Percentage (expressed as a fraction) indicating the maximum percentage of samples that can be changed. Default value: 0.2 (20%).}
 
 \item{nCores}{Integer | Number of cores to be used in parallelization. Default value: 6.}
 
@@ -101,22 +114,29 @@ detectAnomalies(
 
 \item{diagnosticChangeProbability}{Decimal | Percentage (expressed as a fraction) indicating the probability of each gene in the solutions to be changed. Default value: 0.1 (10%).}
 
-\item{crossoverOperator}{String | Crossover operator used in the genetic algorithm. Default value: Single Point Crossover.}
+\item{crossoverOperator}{String | Name of the crossover operator used in the genetic algorithm. Default value: Single Point Crossover.}
 
 \item{crossoverProbability}{Decimal | Percentage (expressed as a fraction) indicating the probability of crossover occurrence. Default value: 0.8 (80%).}
 
-\item{selectionOperator}{String | Selection operator used in the genetic algorithm. Default value: Tournament Selection.}
+\item{selectionOperator}{String | Name of the selection operator used in the genetic algorithm. Default value: Tournament Selection.}
 
-\item{mutationOperator}{String | Mutation operator used in the genetic algorithm. Default value: Random Mutation.}
+\item{mutationOperator}{String | Name of the mutation operator used in the genetic algorithm. Default value: Random Mutation.}
 
 \item{mutationProbability}{Decimal | Percentage (expressed as a fraction) indicating the probability of mutation occurrence. Default value: 0.1 (10%).}
 
 \item{seed}{Integer | Seed used for the creation of training and test sets. Default value: 1234.}
+
+\item{pcaAlpha}{Decimal | Alpha used for the points that don't change in the pca plot. Default value: 0.2.}
+
+\item{pcaSize}{Decimal | Size used for the points that change in the pca plot. Default value: 1.4.}
+
+\item{oddsDefaultValues}{String | Parámetro indicando para cada predictor categórico}
 }
 \description{
 Methodology based on the combination of a genetic algorithm and a Machine Learning technique to mutate the final
 diagnosis of patients, detecting anomalies in them.
-
+}
+\details{
 These discrepancies may have their origin in the evolution of the subject itself, leading it from one group to
 another in biological terms, or they may derive from human error in the labelling of the samples, among other causes.
 
@@ -131,7 +151,7 @@ MLASDO::detectAnomalies(savingName = "DefaultExecutionRF", mlAlgorithm = "RF")
 
 MLASDO::detectAnomalies(savingName = "QuickExecution", mlAlgorithm = "Lasso", nIterations = 3, nStopIter = 2, populationSize = 20, activePredictors = c("sex", "age", "Mutation", "Ethnicity"))
 
-MLASDO::detectAnomalies(savingName = "ExecutionWithOwnData", mlAlgorithm = "RF", predictorsToSelect = 0.3, omicDataPath = "./myOmicData.tsv", clinicDataPath = "./myClinicData.tsv", idColumn = "Patient.Id", nIterations = 3, populationSize = 10, classVariable = "Diagnosis", activePredictors = c("sex", "age", "Ethnicity"))
+MLASDO::detectAnomalies(savingName = "ExecutionWithOwnData", mlAlgorithm = "RF", predictorsToSelect = 0.3, omicDataPath = "./myOmicData.tsv", clinicDataPath = "./myClinicData.tsv", idColumn = "Patient.Id", nIterations = 3, populationSize = 10, classVariable = "Diagnosis", activePredictors = c("sex", "age", "Ethnicity"), numericActivePredictors = c("age"), categoricActivePredictors = c("sex", "Ethnicity"))
 
-MLASDO::detectAnomalies(justAnalysis = TRUE, mlAlgorithm = "Lasso", geneticPath = "GA.rds", solutionPath = "GA_solution.rds", bestModelPath = "GA_Best_Model.rds", worstModelPath = "GA_Worst_Model.rds", lassoPredictorsPath = "GA_Lasso_Predictors.rds", savingName = "ExecutionWithOwnData", omicDataPath = "./myOmicData.tsv", clinicDataPath = "./myClinicData.tsv",idColumn = "Patient.Id",classVariable = "Diagnosis", activePredictors = c("sex", "age", "Ethnicity"))
+MLASDO::detectAnomalies(justAnalysis = TRUE, mlAlgorithm = "Lasso", geneticPath = "GA.rds", solutionPath = "GA_solution.rds", bestModelAfterDetectionPath = "GA_Best_Model.rds", lassoPredictorsPath = "GA_Lasso_Predictors.rds", savingName = "ExecutionWithOwnData", omicDataPath = "./myOmicData.tsv", clinicDataPath = "./myClinicData.tsv",idColumn = "Patient.Id",classVariable = "Diagnosis", activePredictors = c("sex", "age", "Ethnicity"))
 }

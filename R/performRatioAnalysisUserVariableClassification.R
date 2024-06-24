@@ -230,7 +230,7 @@ performRatioAnalysisUserVariableClassification <- function(
         totalResult <- rbind(totalResult, newRow)
 
 
-      # Predictors with 3 values or fewer
+        # Predictors with 3 values or fewer
       } else if (length(unique(clinic[[activePredictor]])) < 4){
 
 

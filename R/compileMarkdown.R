@@ -117,7 +117,21 @@ compileMarkdown <- function(
   gaPathTotal <- paste(dirPath, "TotalTable.tsv", sep="_")
 
   numeric <- read.table(gaPathNumeric, header = TRUE, sep = "\t", row.names = 1)
-  total <- read.table(gaPathTotal, header = TRUE, sep = "\t", row.names = 1)
+  totalTable <- read.table(gaPathTotal, header = TRUE, sep = "\t", row.names = 1)
+
+  wilcoxPathControls <- paste(dirPath, "WilcoxControls.tsv", sep="_")
+  totalWilcoxControls <- read.table(wilcoxPathControls, header = TRUE, sep = "\t", row.names = 1)
+
+  wilcoxPathCases <- paste(dirPath, "WilcoxCases.tsv", sep="_")
+  totalWilcoxCases <- read.table(wilcoxPathCases, header = TRUE, sep = "\t", row.names = 1)
+
+  OddsPathControls <- paste(dirPath, "OddsRatiosControls.tsv", sep="_")
+  totalOddsControls <- read.table(OddsPathControls, header = TRUE, sep = "\t", row.names = 1)
+
+  OddsPathCases <- paste(dirPath, "OddsRatiosCases.tsv", sep="_")
+  totalOddsCases <- read.table(OddsPathCases, header = TRUE, sep = "\t", row.names = 1)
+
+
 
   outputName <- paste("analysisResult_", name, ".html", sep = "")
 
@@ -160,7 +174,7 @@ compileMarkdown <- function(
                                  pcaAnalysisSelected = pcaSelected,
                                  pcaInfo = pcaInfo,
                                  numericTable = numeric,
-                                 totalTable = total,
+                                 totalTable = totalTable,
                                  classVariable = classVariable,
                                  idColumn = idColumn,
                                  predictorsToSelect = predictorsToSelect,
@@ -187,7 +201,11 @@ compileMarkdown <- function(
                                  bestBaselineModelCM = bestBaselineModelCM,
                                  predictorsImp = predictorsImp,
                                  pcaAlpha = pcaAlpha,
-                                 pcaSize = pcaSize
+                                 pcaSize = pcaSize,
+                                 totalWilcoxControls = totalWilcoxControls,
+                                 totalWilcoxCases = totalWilcoxCases,
+                                 totalOddsControls = totalOddsControls,
+                                 totalOddsCases = totalOddsCases
                                  ),
                    output_file = outputName,
                    output_dir = outputPath

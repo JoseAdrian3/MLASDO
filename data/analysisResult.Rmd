@@ -49,6 +49,10 @@ params:
   predictorsImp : NULL
   pcaAlpha : NULL
   pcaSize : NULL
+  totalWilcoxControls : NULL
+  totalOddsControls : NULL
+  totalWilcoxCases : NULL
+  totalOddsCases : NULL
 ---
 
 ```{r setup, include=FALSE}
@@ -801,3 +805,355 @@ plotECEM
 ```
 
 `r paste(ecemData$percentageTextECEM, collapse = "\n\n")`
+
+# 10 Stadistical Analysis
+
+For categorical variables, a generalized linear model (GLM) has been implemented to assess the association between the clinical predictor and the patient's change in status. For binary predictors, an Odds Ratio is calculated comparing the two possible predictor values with respect to the patient's change in status. For predictors with more than two values, a set of Odds Ratios is calculated, each comparing one predictor category to a reference category, in relation to the patient's change in status.
+
+For numerical variables, a Mann-Whitney test has been conducted to compare the distributions of values between patients who have remained in a certain state and those who have changed to the other state.
+
+## 10.1 Odds Ratios of patients' state changes from Controls to Cases  according to categorical predictors
+
+```{r, echo = FALSE}
+totalOdds_na <- totalOddsControls
+
+totalOddsControls <- totalOddsControls[!is.na(totalOddsControls$UpperCI), ]
+```
+
+
+```{r, echo = FALSE}
+for (row_name in rownames(totalOddsControls)) {
+  split_text <- strsplit(row_name, "/")[[1]]
+  split_despues_del_slash <- strsplit(split_text[2], " vs ")[[1]]
+  
+  # Crear el texto para la fila actual
+  new_column_text <- paste(
+    "Variable", split_text[1], "(categoric), values:", split_despues_del_slash[1], " and ", split_despues_del_slash[2], "<br>",
+    paste("OddRatio:", totalOddsControls[row_name, "OddRatio"], "<br>", sep = " "),
+    paste("LowerCI:", totalOddsControls[row_name, "LowerCI"], "<br>", sep = " "),
+    paste("UpperCI:", totalOddsControls[row_name, "UpperCI"], "<br>", sep = " "),
+    paste(split_despues_del_slash[1], " Control individuals changed:", totalOddsControls[row_name, "SUMCCFirst"], "<br>", sep = " "),
+    paste(split_despues_del_slash[2], " Control individuals changed:", totalOddsControls[row_name, "SUMCCSecond"], "<br>", sep = " "),
+    paste(split_despues_del_slash[1], " Control individuals unchanged:", totalOddsControls[row_name, "SUMCMFirst"], "<br>", sep = " "),
+    paste(split_despues_del_slash[2], " Control individuals unchanged:", totalOddsControls[row_name, "SUMCMSecond"], "<br>", sep = " ")
+  )
+  
+  # Asignar el texto creado a la nueva columna
+  totalOddsControls[row_name, "text"] <- new_column_text
+}
+```
+
+```{r, echo = FALSE}
+color_list <- ifelse(totalOddsControls$UpperCI < 1 | totalOddsControls$LowerCI > 1, "red", "blue")
+
+vline <- function(x = 1, color = "black") {
+  list(
+    type = "line", 
+    y0 = 0, 
+    y1 = 1, 
+    yref = "paper",
+    x0 = x, 
+    x1 = x, 
+    line = list(color = color, dash = "dash", width = 1, opacity = 0.5)
+  )
+}
+
+plotOdds <- plot_ly(
+  totalOddsControls,
+  x = ~OddRatio,
+  y = ~y,
+  type = 'scatter',
+  mode = 'markers',
+  marker = list(size = 10, color = color_list),
+  error_x = list(
+    type = 'data',
+    symmetric = FALSE,
+    array = ~UpperCI - OddRatio,
+    arrayminus = ~OddRatio - LowerCI,
+    color = 'black',
+    thickness = 1.5,
+    width = 5
+  ),
+  hoverinfo = 'text',
+  text = ~text,
+  height = length(rownames(totalOddsControls)) * 25,
+  width = 1000
+) %>% 
+layout(
+  title = "Odds Ratios of patients' state changes from Controls to Cases",
+  xaxis = list(type = "log"),
+  yaxis = list(title = "Predictor")
+) %>%
+  layout(shapes = list(vline(1)))
+```
+
+```{r, echo = FALSE}
+plotOdds
+```
+
+
+```{r, echo = FALSE, results='asis'}
+above_one <- totalOddsControls[totalOddsControls$LowerCI > 1 & totalOddsControls$UpperCI > 1, ]
+
+cat("**Odds Ratio greater than 1:** \n\n")
+
+if (nrow(above_one) > 0) {
+  comparisons <- strsplit(above_one$y, "/")  
+  translated_text <- lapply(comparisons, function(cmp) {
+    cmp_split <- strsplit(cmp[2], " vs ")[[1]]
+
+    # Format in bold using ANSI escape sequences for console output
+    paste("Predictor <b>", cmp[1], "</b> when comparing the default value <b>", cmp_split[1], "</b> and the value <b>", cmp_split[2], "</b> from <b>Controls to Cases</b>.")
+
+  })
+  cat(paste(translated_text, collapse = "<br>"), "<br>")
+}
+```
+
+```{r, echo = FALSE, results='asis'}
+under_one <- totalOddsControls[totalOddsControls$LowerCI < 1 & totalOddsControls$UpperCI < 1, ]
+
+cat("**Odds Ratio less than 1:** \n\n")
+
+if (nrow(under_one) > 0) {
+  comparisons <- strsplit(under_one$y, "/")  
+  translated_text <- lapply(comparisons, function(cmp) {
+    cmp_split <- strsplit(cmp[2], " vs ")[[1]]
+
+    # Format in bold using ANSI escape sequences for console output
+    paste("Predictor <b>", cmp[1], "</b> when comparing the default value <b>", cmp_split[1], "</b> and the value <b>", cmp_split[2], "</b> from  <b>Controls to Cases</b>.")
+
+  })
+  cat(paste(translated_text, collapse = "<br>"), "<br>")
+}
+```
+
+## 10.2 Odds Ratios of patients' state changes from Cases to Controls according to categorical predictors
+
+```{r, echo = FALSE}
+totalOddsCases <- totalOddsCases[!is.na(totalOddsCases$UpperCI), ]
+```
+
+
+```{r, echo = FALSE}
+for (row_name in rownames(totalOddsCases)) {
+  split_text <- strsplit(row_name, "/")[[1]]
+  split_despues_del_slash <- strsplit(split_text[2], " vs ")[[1]]
+  
+  # Crear el texto para la fila actual
+  new_column_text <- paste(
+    "Variable", split_text[1], "(categoric), values:", split_despues_del_slash[1], " and ", split_despues_del_slash[2], "<br>",
+    paste("OddRatio:", totalOddsCases[row_name, "OddRatio"], "<br>", sep = " "),
+    paste("LowerCI:", totalOddsCases[row_name, "LowerCI"], "<br>", sep = " "),
+    paste("UpperCI:", totalOddsCases[row_name, "UpperCI"], "<br>", sep = " "),
+    paste(split_despues_del_slash[1], " Control individuals changed:", totalOddsCases[row_name, "SUMCCFirst"], "<br>", sep = " "),
+    paste(split_despues_del_slash[2], " Control individuals changed:", totalOddsCases[row_name, "SUMCCSecond"], "<br>", sep = " "),
+    paste(split_despues_del_slash[1], " Control individuals unchanged:", totalOddsCases[row_name, "SUMCMFirst"], "<br>", sep = " "),
+    paste(split_despues_del_slash[2], " Control individuals unchanged:", totalOddsCases[row_name, "SUMCMSecond"], "<br>", sep = " ")
+  )
+  
+  # Asignar el texto creado a la nueva columna
+  totalOddsCases[row_name, "text"] <- new_column_text
+}
+```
+
+```{r, echo = FALSE}
+color_list <- ifelse(totalOddsCases$UpperCI < 1 | totalOddsCases$LowerCI > 1, "red", "blue")
+
+vline <- function(x = 1, color = "black") {
+  list(
+    type = "line", 
+    y0 = 0, 
+    y1 = 1, 
+    yref = "paper",
+    x0 = x, 
+    x1 = x, 
+    line = list(color = color, dash = "dash", width = 1, opacity = 0.5)
+  )
+}
+
+plotOdds <- plot_ly(
+  totalOddsCases,
+  x = ~OddRatio,
+  y = ~y,
+  type = 'scatter',
+  mode = 'markers',
+  marker = list(size = 10, color = color_list),
+  error_x = list(
+    type = 'data',
+    symmetric = FALSE,
+    array = ~UpperCI - OddRatio,
+    arrayminus = ~OddRatio - LowerCI,
+    color = 'black',
+    thickness = 1.5,
+    width = 5
+  ),
+  hoverinfo = 'text',
+  text = ~text,
+  height = length(rownames(totalOddsCases)) * 25,
+  width = 1000
+) %>% 
+layout(
+  title = "Odds Ratios of patients' state changes from Cases to Controls",
+  xaxis = list(type = "log"),
+  yaxis = list(title = "Predictor")
+) %>%
+  layout(shapes = list(vline(1)))
+```
+
+```{r, echo = FALSE}
+plotOdds
+```
+
+```{r, echo = FALSE, results='asis'}
+above_one <- totalOddsCases[totalOddsCases$LowerCI > 1 & totalOddsCases$UpperCI > 1, ]
+
+cat("**Odds Ratio greater than 1:** \n\n")
+
+if (nrow(above_one) > 0) {
+  comparisons <- strsplit(above_one$y, "/")  
+  translated_text <- lapply(comparisons, function(cmp) {
+    cmp_split <- strsplit(cmp[2], " vs ")[[1]]
+    
+    # Format in bold using ANSI escape sequences for console output
+    paste("Predictor <b>", cmp[1], "</b> when comparing the default value <b>", cmp_split[1], "</b> and the value <b>", cmp_split[2], "</b> from  <b>Cases to Controls</b>.")
+
+  })
+  cat(paste(translated_text, collapse = "<br>"), "<br>")
+}
+```
+
+```{r, echo = FALSE, results='asis'}
+under_one <- totalOddsCases[totalOddsCases$LowerCI < 1 & totalOddsCases$UpperCI < 1, ]
+
+cat("**Odds Ratio less than 1:** \n\n")
+
+if (nrow(under_one) > 0) {
+  comparisons <- strsplit(under_one$y, "/")  
+  translated_text <- lapply(comparisons, function(cmp) {
+    cmp_split <- strsplit(cmp[2], " vs ")[[1]]
+
+    # Format in bold using ANSI escape sequences for console output
+    paste("Predictor <b>", cmp[1], "</b> when comparing the default value <b>", cmp_split[1], "</b> and the value <b>", cmp_split[2], "</b> from  <b>Cases to Controls</b>.")
+
+  })
+  cat(paste(translated_text, collapse = "<br>"), "<br>")
+}
+```
+
+## 10.3 Test Mann-Whitney of patients' state changes from Controls to Cases according to numerical predictors
+
+```{r, echo = FALSE}
+predictors <- unique(totalWilcoxControls$predictor)
+
+cel <- ceiling(length(predictors) / 3)
+
+height <- cel * 5
+```
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(fig.height = height)
+```
+
+
+```{r, fig.width=10, warning=FALSE, echo = FALSE}
+p <- ggboxplot(totalWilcoxControls, x = "group", y = "value",
+                   color = "group", palette = "npg") + facet_wrap( ~ predictor, ncol = 3, scales = "free")
+
+my_comparisons <- list(c("Changed", "Maintained"))
+p <- p + stat_compare_means(method = "wilcox.test", comparisons = my_comparisons, size = 5)
+
+p <- p + theme(axis.text.x = element_text(size = 10),
+                 strip.text.x = element_text(size = 8.5),
+                 axis.title.y = element_text(size = 10),
+                 strip.text = element_text(size = 10)
+)
+
+p
+```
+
+```{r, echo = FALSE, warning=FALSE}
+comparisons_data <- ggplot_build(p)$data[[2]]
+
+valor_panel <- comparisons_data$PANEL[as.numeric(comparisons_data$annotation) < 0.05]
+
+valor_panel <- unique(valor_panel)
+
+valores_predictores <- sort(unique(totalWilcoxControls$predictor))
+
+valores_seleccionados <- valores_predictores[valor_panel]
+
+wilcoxdf <- data.frame(y = valores_seleccionados)
+```
+
+```{r, echo = FALSE, results='asis', warning=FALSE}
+cat("**Test Mann-Whitney less than 0.05:** \n\n")
+
+if (nrow(wilcoxdf) > 0) {
+  translated_text <- lapply(wilcoxdf$y, function(text) {
+    
+    # Format in bold using ANSI escape sequences for console output
+    paste("Predictor <b>", text, "</b> from <b>Controls to Cases</b>.")
+    
+  })
+  cat(paste(translated_text, collapse = "<br>"), "<br>")
+}
+```
+
+## 10.4 Test Mann-Whitney of patients' state changes from Cases to Controls according to numerical predictors
+
+```{r, echo = FALSE}
+predictors <- unique(totalWilcoxCases$predictor)
+
+cel <- ceiling(length(predictors) / 3)
+
+height <- cel * 5
+```
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(fig.height = height)
+```
+
+```{r, fig.width=10, warning=FALSE, echo = FALSE}
+p <- ggboxplot(totalWilcoxCases, x = "group", y = "value",
+                   color = "group", palette = "npg") + facet_wrap( ~ predictor, ncol = 3, scales = "free")
+
+my_comparisons <- list(c("Changed", "Maintained"))
+p <- p + stat_compare_means(method = "wilcox.test", comparisons = my_comparisons, size = 5)
+
+p <- p + theme(axis.text.x = element_text(size = 10),
+                 strip.text.x = element_text(size = 8.5),
+                 axis.title.y = element_text(size = 10),
+                 strip.text = element_text(size = 10)
+)
+
+p
+```
+
+```{r, echo = FALSE, warning=FALSE}
+comparisons_data <- ggplot_build(p)$data[[2]]
+
+valor_panel <- comparisons_data$PANEL[as.numeric(comparisons_data$annotation) < 0.05]
+
+valor_panel <- unique(valor_panel)
+
+valores_predictores <- sort(unique(totalWilcoxCases$predictor))
+
+valores_seleccionados <- valores_predictores[valor_panel]
+
+wilcoxdf <- data.frame(y = valores_seleccionados)
+```
+
+```{r, echo = FALSE, results='asis', warning=FALSE}
+cat("**Test Mann-Whitney less than 0.05:** \n\n")
+
+if (nrow(wilcoxdf) > 0) {
+  translated_text <- lapply(wilcoxdf$y, function(text) {
+    
+    paste("Predictor <b>", text, "</b> from <b>Cases to Controls</b>.")
+    
+  })
+  cat(paste(translated_text, collapse = "<br>"), "<br>")
+}
+```
+
