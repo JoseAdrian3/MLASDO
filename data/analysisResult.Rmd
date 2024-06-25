@@ -815,9 +815,7 @@ For numerical variables, a Mann-Whitney test has been conducted to compare the d
 ## 10.1 Odds Ratios of patients' state changes from Controls to Cases  according to categorical predictors
 
 ```{r, echo = FALSE}
-totalOdds_na <- totalOddsControls
-
-totalOddsControls <- totalOddsControls[!is.na(totalOddsControls$UpperCI), ]
+totalOddsControls <- params$totalOddsControls
 ```
 
 
@@ -826,7 +824,6 @@ for (row_name in rownames(totalOddsControls)) {
   split_text <- strsplit(row_name, "/")[[1]]
   split_despues_del_slash <- strsplit(split_text[2], " vs ")[[1]]
   
-  # Crear el texto para la fila actual
   new_column_text <- paste(
     "Variable", split_text[1], "(categoric), values:", split_despues_del_slash[1], " and ", split_despues_del_slash[2], "<br>",
     paste("OddRatio:", totalOddsControls[row_name, "OddRatio"], "<br>", sep = " "),
@@ -838,7 +835,6 @@ for (row_name in rownames(totalOddsControls)) {
     paste(split_despues_del_slash[2], " Control individuals unchanged:", totalOddsControls[row_name, "SUMCMSecond"], "<br>", sep = " ")
   )
   
-  # Asignar el texto creado a la nueva columna
   totalOddsControls[row_name, "text"] <- new_column_text
 }
 ```
@@ -861,7 +857,7 @@ vline <- function(x = 1, color = "black") {
 plotOdds <- plot_ly(
   totalOddsControls,
   x = ~OddRatio,
-  y = ~y,
+  y = ~rownames(totalOddsControls),
   type = 'scatter',
   mode = 'markers',
   marker = list(size = 10, color = color_list),
@@ -891,18 +887,16 @@ layout(
 plotOdds
 ```
 
-
 ```{r, echo = FALSE, results='asis'}
 above_one <- totalOddsControls[totalOddsControls$LowerCI > 1 & totalOddsControls$UpperCI > 1, ]
 
 cat("**Odds Ratio greater than 1:** \n\n")
 
 if (nrow(above_one) > 0) {
-  comparisons <- strsplit(above_one$y, "/")  
+  comparisons <- strsplit(rownames(above_one), "/")  
   translated_text <- lapply(comparisons, function(cmp) {
     cmp_split <- strsplit(cmp[2], " vs ")[[1]]
 
-    # Format in bold using ANSI escape sequences for console output
     paste("Predictor <b>", cmp[1], "</b> when comparing the default value <b>", cmp_split[1], "</b> and the value <b>", cmp_split[2], "</b> from <b>Controls to Cases</b>.")
 
   })
@@ -916,11 +910,10 @@ under_one <- totalOddsControls[totalOddsControls$LowerCI < 1 & totalOddsControls
 cat("**Odds Ratio less than 1:** \n\n")
 
 if (nrow(under_one) > 0) {
-  comparisons <- strsplit(under_one$y, "/")  
+  comparisons <- strsplit(rownames(under_one), "/")  
   translated_text <- lapply(comparisons, function(cmp) {
     cmp_split <- strsplit(cmp[2], " vs ")[[1]]
 
-    # Format in bold using ANSI escape sequences for console output
     paste("Predictor <b>", cmp[1], "</b> when comparing the default value <b>", cmp_split[1], "</b> and the value <b>", cmp_split[2], "</b> from  <b>Controls to Cases</b>.")
 
   })
@@ -931,7 +924,7 @@ if (nrow(under_one) > 0) {
 ## 10.2 Odds Ratios of patients' state changes from Cases to Controls according to categorical predictors
 
 ```{r, echo = FALSE}
-totalOddsCases <- totalOddsCases[!is.na(totalOddsCases$UpperCI), ]
+totalOddsCases <- params$totalOddsCases
 ```
 
 
@@ -940,19 +933,17 @@ for (row_name in rownames(totalOddsCases)) {
   split_text <- strsplit(row_name, "/")[[1]]
   split_despues_del_slash <- strsplit(split_text[2], " vs ")[[1]]
   
-  # Crear el texto para la fila actual
   new_column_text <- paste(
     "Variable", split_text[1], "(categoric), values:", split_despues_del_slash[1], " and ", split_despues_del_slash[2], "<br>",
     paste("OddRatio:", totalOddsCases[row_name, "OddRatio"], "<br>", sep = " "),
     paste("LowerCI:", totalOddsCases[row_name, "LowerCI"], "<br>", sep = " "),
     paste("UpperCI:", totalOddsCases[row_name, "UpperCI"], "<br>", sep = " "),
-    paste(split_despues_del_slash[1], " Control individuals changed:", totalOddsCases[row_name, "SUMCCFirst"], "<br>", sep = " "),
-    paste(split_despues_del_slash[2], " Control individuals changed:", totalOddsCases[row_name, "SUMCCSecond"], "<br>", sep = " "),
-    paste(split_despues_del_slash[1], " Control individuals unchanged:", totalOddsCases[row_name, "SUMCMFirst"], "<br>", sep = " "),
-    paste(split_despues_del_slash[2], " Control individuals unchanged:", totalOddsCases[row_name, "SUMCMSecond"], "<br>", sep = " ")
+    paste(split_despues_del_slash[1], " Cases individuals changed:", totalOddsCases[row_name, "SUMCCFirst"], "<br>", sep = " "),
+    paste(split_despues_del_slash[2], " Cases individuals changed:", totalOddsCases[row_name, "SUMCCSecond"], "<br>", sep = " "),
+    paste(split_despues_del_slash[1], " Cases individuals unchanged:", totalOddsCases[row_name, "SUMCMFirst"], "<br>", sep = " "),
+    paste(split_despues_del_slash[2], " Cases individuals unchanged:", totalOddsCases[row_name, "SUMCMSecond"], "<br>", sep = " ")
   )
   
-  # Asignar el texto creado a la nueva columna
   totalOddsCases[row_name, "text"] <- new_column_text
 }
 ```
@@ -975,7 +966,7 @@ vline <- function(x = 1, color = "black") {
 plotOdds <- plot_ly(
   totalOddsCases,
   x = ~OddRatio,
-  y = ~y,
+  y = ~rownames(totalOddsCases),
   type = 'scatter',
   mode = 'markers',
   marker = list(size = 10, color = color_list),
@@ -1011,7 +1002,7 @@ above_one <- totalOddsCases[totalOddsCases$LowerCI > 1 & totalOddsCases$UpperCI 
 cat("**Odds Ratio greater than 1:** \n\n")
 
 if (nrow(above_one) > 0) {
-  comparisons <- strsplit(above_one$y, "/")  
+  comparisons <- strsplit(rownames(above_one), "/")  
   translated_text <- lapply(comparisons, function(cmp) {
     cmp_split <- strsplit(cmp[2], " vs ")[[1]]
     
@@ -1029,7 +1020,7 @@ under_one <- totalOddsCases[totalOddsCases$LowerCI < 1 & totalOddsCases$UpperCI 
 cat("**Odds Ratio less than 1:** \n\n")
 
 if (nrow(under_one) > 0) {
-  comparisons <- strsplit(under_one$y, "/")  
+  comparisons <- strsplit(rownames(under_one), "/")  
   translated_text <- lapply(comparisons, function(cmp) {
     cmp_split <- strsplit(cmp[2], " vs ")[[1]]
 
@@ -1042,6 +1033,11 @@ if (nrow(under_one) > 0) {
 ```
 
 ## 10.3 Test Mann-Whitney of patients' state changes from Controls to Cases according to numerical predictors
+
+```{r, echo = FALSE}
+totalWilcoxControls <- params$totalWilcoxControls
+```
+
 
 ```{r, echo = FALSE}
 predictors <- unique(totalWilcoxControls$predictor)
@@ -1103,6 +1099,11 @@ if (nrow(wilcoxdf) > 0) {
 ## 10.4 Test Mann-Whitney of patients' state changes from Cases to Controls according to numerical predictors
 
 ```{r, echo = FALSE}
+totalWilcoxCases <- params$totalWilcoxCases
+```
+
+
+```{r, echo = FALSE}
 predictors <- unique(totalWilcoxCases$predictor)
 
 cel <- ceiling(length(predictors) / 3)
@@ -1156,4 +1157,3 @@ if (nrow(wilcoxdf) > 0) {
   cat(paste(translated_text, collapse = "<br>"), "<br>")
 }
 ```
-

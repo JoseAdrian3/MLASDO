@@ -45,8 +45,7 @@ detectAnomalies(
   seed = 1234,
   pcaAlpha = 0.2,
   pcaSize = 1.4,
-  oddsDefaultValues = character(0),
-  oddPredictorsToIgnore = NULL
+  oddsDefaultValues = character(0)
 )
 }
 \arguments{
@@ -130,7 +129,7 @@ detectAnomalies(
 
 \item{pcaSize}{Decimal | Size used for the points that change in the pca plot. Default value: 1.4.}
 
-\item{oddsDefaultValues}{String | Parámetro indicando para cada predictor categórico}
+\item{oddsDefaultValues}{String | Parameter indicating for each categorical feature its default value, both feature and value separated by ':'}
 }
 \description{
 Methodology based on the combination of a genetic algorithm and a Machine Learning technique to mutate the final
@@ -153,5 +152,5 @@ MLASDO::detectAnomalies(savingName = "QuickExecution", mlAlgorithm = "Lasso", nI
 
 MLASDO::detectAnomalies(savingName = "ExecutionWithOwnData", mlAlgorithm = "RF", predictorsToSelect = 0.3, omicDataPath = "./myOmicData.tsv", clinicDataPath = "./myClinicData.tsv", idColumn = "Patient.Id", nIterations = 3, populationSize = 10, classVariable = "Diagnosis", activePredictors = c("sex", "age", "Ethnicity"), numericActivePredictors = c("age"), categoricActivePredictors = c("sex", "Ethnicity"))
 
-MLASDO::detectAnomalies(justAnalysis = TRUE, mlAlgorithm = "Lasso", geneticPath = "GA.rds", solutionPath = "GA_solution.rds", bestModelAfterDetectionPath = "GA_Best_Model.rds", lassoPredictorsPath = "GA_Lasso_Predictors.rds", savingName = "ExecutionWithOwnData", omicDataPath = "./myOmicData.tsv", clinicDataPath = "./myClinicData.tsv",idColumn = "Patient.Id",classVariable = "Diagnosis", activePredictors = c("sex", "age", "Ethnicity"))
+MLASDO::detectAnomalies(justAnalysis = TRUE, mlAlgorithm = "Lasso", geneticPath = "GA.rds", solutionPath = "GA_solution.rds", bestModelAfterDetectionPath = "GA_Best_Model.rds", lassoPredictorsPath = "GA_Lasso_Predictors.rds", savingName = "ExecutionWithOwnData", omicDataPath = "./myOmicData.tsv", clinicDataPath = "./myClinicData.tsv",idColumn = "Patient.Id",classVariable = "Diagnosis", activePredictors = c("sex", "age", "Ethnicity"), oddsDefaultValues <- c("mutation:Healthy Control"))
 }

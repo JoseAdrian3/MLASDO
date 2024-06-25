@@ -131,12 +131,9 @@ compileMarkdown <- function(
   OddsPathCases <- paste(dirPath, "OddsRatiosCases.tsv", sep="_")
   totalOddsCases <- read.table(OddsPathCases, header = TRUE, sep = "\t", row.names = 1)
 
-
-
   outputName <- paste("analysisResult_", name, ".html", sep = "")
 
   outputPath <- paste("./", savingName, "/", sep = "")
-
 
   dirPath <- paste(savingName, "geneticAlgorithm", name, sep = "/")
 

@@ -58,7 +58,7 @@
 #' @param pcaAlpha Decimal | Alpha used for the points that don't change in the pca plot. Default value: 0.2.
 #' @param pcaSize Decimal | Size used for the points that change in the pca plot. Default value: 1.4.
 #'
-#' @param oddsDefaultValues String | Parámetro indicando para cada predictor categórico
+#' @param oddsDefaultValues String | Parameter indicating for each categorical feature its default value, both feature and value separated by ':'
 #'
 #' @export
 #'
@@ -72,7 +72,7 @@
 #'
 #' MLASDO::detectAnomalies(savingName = "ExecutionWithOwnData", mlAlgorithm = "RF", predictorsToSelect = 0.3, omicDataPath = "./myOmicData.tsv", clinicDataPath = "./myClinicData.tsv", idColumn = "Patient.Id", nIterations = 3, populationSize = 10, classVariable = "Diagnosis", activePredictors = c("sex", "age", "Ethnicity"), numericActivePredictors = c("age"), categoricActivePredictors = c("sex", "Ethnicity"))
 #'
-#' MLASDO::detectAnomalies(justAnalysis = TRUE, mlAlgorithm = "Lasso", geneticPath = "GA.rds", solutionPath = "GA_solution.rds", bestModelAfterDetectionPath = "GA_Best_Model.rds", lassoPredictorsPath = "GA_Lasso_Predictors.rds", savingName = "ExecutionWithOwnData", omicDataPath = "./myOmicData.tsv", clinicDataPath = "./myClinicData.tsv",idColumn = "Patient.Id",classVariable = "Diagnosis", activePredictors = c("sex", "age", "Ethnicity"))
+#' MLASDO::detectAnomalies(justAnalysis = TRUE, mlAlgorithm = "Lasso", geneticPath = "GA.rds", solutionPath = "GA_solution.rds", bestModelAfterDetectionPath = "GA_Best_Model.rds", lassoPredictorsPath = "GA_Lasso_Predictors.rds", savingName = "ExecutionWithOwnData", omicDataPath = "./myOmicData.tsv", clinicDataPath = "./myClinicData.tsv",idColumn = "Patient.Id",classVariable = "Diagnosis", activePredictors = c("sex", "age", "Ethnicity"), oddsDefaultValues <- c("mutation:Healthy Control"))
 
 detectAnomalies <- function(
     justAnalysis = FALSE,
@@ -115,8 +115,7 @@ detectAnomalies <- function(
     seed = 1234,
     pcaAlpha = 0.2,
     pcaSize = 1.4,
-    oddsDefaultValues = character(0),
-    oddPredictorsToIgnore = NULL
+    oddsDefaultValues = character(0)
 ){
 
 
@@ -245,33 +244,37 @@ detectAnomalies <- function(
     return("The only valid formats for clinic data are: .tsv and .csv")
   }
 
-  ### RELEVEL CLINIC DATA ###
+  #### RELEVEL CLINIC DATA ####
 
+  # Variable to store the features with a default value
   defaultOddsPredictors <- character(0)
 
-  # Función para convertir a factor un predictor de un dataframe con un primer valor como valor por defecto (primer level)
+  # Function to convert a dataframe's (df) feature (predictor) to a factor with the first value as the default value (default_value)
   convert_to_factor <- function(df, predictor, default_value) {
     df[[predictor]] <- factor(df[[predictor]], levels = c(default_value, setdiff(unique(df[[predictor]]), default_value)))
     return(df)
   }
 
-  # De cada cadena separamos por ":" siendo lo de la izquierda el predictor y lo de la derecha lo que queremos que sea el valor por defecto (primer level)
+  # From each string, separate by ':', with the left side being the predictor and the right side being the desired default value (future first level of the feature)
   for (entry in oddsDefaultValues) {
     parts <- unlist(strsplit(entry, ":"))
     predictor <- parts[1]
+    default_value <- parts[2]
 
+    # Checking feature is not a numeric feature
     if(!predictor %in% numericActivePredictors){
 
+      # Updeting variable of features with default predictors
       defaultOddsPredictors <- c(defaultOddsPredictors, predictor)
-      default_value <- parts[2]
+
       clinicData <- convert_to_factor(clinicData, predictor, default_value)
 
+    } else {
+      print("You have attempted to convert a numerical predictor to have a default value")
     }
   }
 
-
-
-  ### RELEVEL CLINIC DATA ###
+  #### RELEVEL CLINIC DATA ####
 
   #### CHECKING PARAMETERS ####
 
@@ -835,8 +838,7 @@ detectAnomalies <- function(
       categoricActivePredictors = categoricActivePredictors,
       numericActivePredictors = numericActivePredictors,
       classVariable = classVariable,
-      oddPredictorsToIgnore = oddPredictorsToIgnore,
-      oddsDefaultValues = oddsDefaultValues
+      defaultOddsPredictors = defaultOddsPredictors
     )
 
   } else {
@@ -849,8 +851,7 @@ detectAnomalies <- function(
       secondGroup = secondGroup,
       activePredictors = activePredictors,
       classVariable = classVariable,
-      oddPredictorsToIgnore = oddPredictorsToIgnore,
-      oddsDefaultValues = oddsDefaultValues
+      defaultOddsPredictors = defaultOddsPredictors
     )
 
   }
