@@ -1,0 +1,2 @@
+"0","clinicData <- read.table(""./data/metadata_selected_m0.tsv"", header = TRUE, sep = ""\t"", row.names = 1)"
+"0","clinicNumericPredictors <- names(clinicData)[sapply(clinicData, is.numeric)]"
