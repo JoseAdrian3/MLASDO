@@ -1,0 +1,153 @@
+---
+title: "MLASDO Analysis"
+author: "José Adrián Pardo Pérez"
+date: "2024-06-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Install MLASDO
+
+```{r}
+library(devtools)
+
+install_github("JoseAdrian3/MLASDO", force = TRUE)
+
+library(MLASDO)
+```
+
+
+## Librerías
+
+```{r}
+library(MLASDO)
+library(dplyr)
+```
+
+## Preprocessing clinic data
+
+```{r}
+clinicData <- read.table("./data/metadata_selected.tsv", header = TRUE, sep = "\t", row.names = 1)
+```
+
+
+```{r}
+# Pacients visit M.0
+clinicData <- subset(clinicData, visit_name == "M0")
+
+# Removing participant_id (duplicated) and visit_name (unique)
+clinicData <- clinicData[, -c(2,3)]
+
+clinicData <- clinicData %>% 
+  rename(id = sample_id)
+
+# Saving clinic
+write.table(clinicData, file = "./data/metadata_selected_m0.tsv", sep = "\t", quote = FALSE, row.names = TRUE)
+```
+
+## Loading datasets
+
+```{r}
+clinicData <- read.table("./data/metadata_selected_m0.tsv", header = TRUE, sep = "\t", row.names = 1)
+clinicNumericPredictors <- names(clinicData)[sapply(clinicData, is.numeric)]
+```
+
+
+## Análisis PPMI con RF
+
+```{r}
+MLASDO::detectAnomalies(
+  justAnalysis = TRUE,
+  mlAlgorithm = "RF",
+  numericActivePredictors = clinicNumericPredictors,
+  geneticPath = "./PPMI_RF/geneticAlgorithm/GA_PPMI_RF.rds",
+  solutionPath = "./PPMI_RF/geneticAlgorithm/GA_PPMI_RF_Solution.rds",
+  bestModelAfterDetectionPath = "./PPMI_RF/geneticAlgorithm/GA_PPMI_RF_Best_Model_After_Detection.rds",
+  savingName = "PPMI_RF",
+  omicDataPath = "./data/transcriptomic_reduced_log10.tsv", 
+  clinicDataPath = "./data/metadata_selected_m0.tsv", 
+  idColumn = "id",
+  classVariable = "case_control_other_latest",
+  oddsDefaultValues = c("mutation:Healthy Control")
+)
+```
+
+# Análisis PPMI con Lasso Baseline
+
+```{r}
+MLASDO::detectAnomalies(
+  justAnalysis = TRUE,
+  mlAlgorithm = "Lasso",
+  numericActivePredictors = clinicNumericPredictors,
+  geneticPath = "./PPMI_Lasso_Baseline/geneticAlgorithm/GA_PPMI_Lasso_Baseline.rds",
+  solutionPath = "./PPMI_Lasso_Baseline/geneticAlgorithm/GA_PPMI_Lasso_Baseline_Solution.rds",
+  bestModelAfterDetectionPath = "./PPMI_Lasso_Baseline/geneticAlgorithm/GA_PPMI_Lasso_Baseline_Best_Model_After_Detection.rds",
+  savingName = "PPMI_Lasso_Baseline",
+  omicDataPath = "./data/transcriptomic_reduced_log10.tsv", 
+  clinicDataPath = "./data/metadata_selected_m0.tsv", 
+  idColumn = "id",
+  classVariable = "case_control_other_latest",
+  lassoPredictorsPath = "./PPMI_Lasso_Baseline/geneticAlgorithm/GA_PPMI_Lasso_Baseline_Predictors.rds",
+  oddsDefaultValues = c("mutation:Healthy Control")
+)
+```
+
+# Anomalías comunes entre Random Forest y Lasso Baseline
+
+```{r}
+selectedPredictorsLasso  <- read.table("./PPMI_Lasso_Baseline/analysisData/GA_PPMI_Lasso_Baseline_Clinic_Selected_Predictors.tsv", header = TRUE, sep = "\t")
+
+selectedPredictorsRandomForest  <- read.table("./PPMI_RF/analysisData/GA_PPMI_RF_Clinic_Selected_Predictors.tsv", header = TRUE, sep = "\t")
+```
+
+```{r}
+lasso_filtered <- selectedPredictorsLasso %>%
+  filter(case_control_other_latest %in% "Control2Case")
+
+lassoControl2Case <- rownames(lasso_filtered)
+
+rf_filtered <- selectedPredictorsRandomForest %>%
+  filter(case_control_other_latest %in% "Control2Case")
+
+rfControl2Case <- rownames(rf_filtered)
+
+comunControl2Case <- intersect(lassoControl2Case, rfControl2Case)
+
+comunControl2Case
+```
+
+```{r}
+lasso_filtered <- selectedPredictorsLasso %>%
+  filter(case_control_other_latest %in% "Case2Control")
+
+lassoCase2Control <- rownames(lasso_filtered)
+
+rf_filtered <- selectedPredictorsRandomForest %>%
+  filter(case_control_other_latest %in% "Case2Control")
+
+rfCase2Control <- rownames(rf_filtered)
+
+comunCase2Control <- intersect(lassoCase2Control, rfCase2Control)
+
+comunCase2Control
+```
+
+# Predictores más importantes en común entre Random Forest y Lasso
+
+```{r}
+selectedPredictorsLasso <- selectedPredictorsLasso[, 2:151]
+
+selectedPredictorsRandomForest <- selectedPredictorsRandomForest[, 2:151]
+
+predictorsLasso <- colnames(selectedPredictorsLasso)
+
+predictorsRF <- colnames(selectedPredictorsRandomForest)
+
+comunPredictors <- intersect(predictorsLasso, predictorsRF)
+
+comunPredictors
+```
+
