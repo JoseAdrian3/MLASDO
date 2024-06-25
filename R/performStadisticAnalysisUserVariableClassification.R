@@ -14,14 +14,14 @@
 #' @param categoricActivePredictors Array of Strings | Categoric predictors of the active predictor list. Default value: All predictors in the active predictor list that return FALSE in the is.numeric function or return TRUE in the is.integer function and have less than 7 distinct values.
 #'
 #' @param classVariable String | Target variable, which must be binary, meaning it has two possible values. If the user does not specify a path to his own data, the value for the sample data, Ca.Co.Last, will be used.
-#'
+#' @param defaultOddsPredictors String | Vector of names of categorical features that have a default value to compare this value against the rest of the values of that feature.
 #'
 #'
 #' @export
 #'
 #' @examples
 #'
-#' MLASDO::performStadisticAnalysisUserVariableClassification(savingName = savingName, changedClinicData = changedClinicData, firstGroup = firstGroup, secondGroup = secondGroup, activePredictors = activePredictors, categoricActivePredictors = categoricActivePredictors, numericActivePredictors = numericActivePredictors, classVariable = classVariable)
+#' MLASDO::performStadisticAnalysisUserVariableClassification(savingName = savingName, changedClinicData = changedClinicData, firstGroup = firstGroup, secondGroup = secondGroup, activePredictors = activePredictors, categoricActivePredictors = categoricActivePredictors, numericActivePredictors = numericActivePredictors, classVariable = classVariable, defaultOddsPredictors = defaultOddsPredictors)
 
 
 performStadisticAnalysisUserVariableClassification <- function(
@@ -33,8 +33,7 @@ performStadisticAnalysisUserVariableClassification <- function(
     categoricActivePredictors,
     numericActivePredictors,
     classVariable,
-    oddPredictorsToIgnore,
-    oddsDefaultValues
+    defaultOddsPredictors
 ){
 
   #### DATA READING ####
@@ -51,8 +50,6 @@ performStadisticAnalysisUserVariableClassification <- function(
     clinic[[activePredictor]] <- replace(clinic[[activePredictor]], is.na(clinic[[activePredictor]]), "Empty")
 
   }
-
-  activePredictors <- activePredictors[!activePredictors %in% oddPredictorsToIgnore]
 
 
   #### PATIENT GROUP CREATION ####
@@ -74,21 +71,21 @@ performStadisticAnalysisUserVariableClassification <- function(
   # Total Case subset (before genetic)
   e <- rbind(ePrima, cPrimaPrima)
 
-  ### STADISTICAL ANALYSIS ###
+  # Variables to store the information and names of the odds ratios between the categorical variables and the patients who have transitioned from Control to Case
   totalOddsControls <- data.frame(OddRatio = numeric(0), LowerCI = numeric(0), UpperCI = numeric(0), SumCCFirst = numeric(0), SumCCSecond = numeric(0), SumCMFirst = numeric(0), SumCMSecond = numeric(0))
-
-  totalOddsCases <- data.frame(OddRatio = numeric(0), LowerCI = numeric(0), UpperCI = numeric(0), SumECFirst = numeric(0), SumECSecond = numeric(0), SumEMFirst = numeric(0), SumEMSecond = numeric(0))
-
-  totalWilcoxControls <- data.frame(value = numeric(0), group = numeric(0), predictor = character(0))
-  totalWilcoxCases <- data.frame(value = numeric(0), group = numeric(0), predictor = character(0))
-
   namesCategoricOddsControls <- character(0)
+
+  # Variables to store the information and names of the odds ratios between the categorical variables and the patients who have transitioned from Case to Control
+  totalOddsCases <- data.frame(OddRatio = numeric(0), LowerCI = numeric(0), UpperCI = numeric(0), SumECFirst = numeric(0), SumECSecond = numeric(0), SumEMFirst = numeric(0), SumEMSecond = numeric(0))
   namesCategoricOddsCases <- character(0)
 
+  # Variables to store the information and names on the odds ratios between the categorical variables and the patients who have transitioned from Control to Case
+  totalWilcoxControls <- data.frame(value = numeric(0), group = numeric(0), predictor = character(0))
   namesNumericWilcoxControls <- character(0)
-  namesNumericWilcoxCases <- character(0)
 
-  ### ODDS RATIO ###
+  # Variables to store the information and names on the odds ratios between the categorical variables and the patients who have transitioned from Case to Control
+  totalWilcoxCases <- data.frame(value = numeric(0), group = numeric(0), predictor = character(0))
+  namesNumericWilcoxCases <- character(0)
 
   # Iterating through the selected activePredictors for analysis
   for(activePredictor in activePredictors){
@@ -150,7 +147,7 @@ performStadisticAnalysisUserVariableClassification <- function(
         E <- e[[activePredictor]]
       }
 
-      ### AÑADIMOS CONTROLS CAMBIADOS
+      #### ADD CONTROLS CHANGED ####
 
       new_rows <- data.frame(
         value = CC,
@@ -160,7 +157,10 @@ performStadisticAnalysisUserVariableClassification <- function(
 
       totalWilcoxControls <- rbind(totalWilcoxControls, new_rows)
 
-      ### AÑADIMOS CONTROLES MANTENIDOS
+      #### ADD CONTROLS CHANGED ####
+
+      #### ADD CONTROLS MAINTAINED ####
+
       new_rows <- data.frame(
         value = CM,
         group = "Maintained",
@@ -169,7 +169,9 @@ performStadisticAnalysisUserVariableClassification <- function(
 
       totalWilcoxControls <- rbind(totalWilcoxControls, new_rows)
 
-      ###AÑADIMOS CASOS CAMBIADOS
+      #### ADD CONTROLS MAINTAINED ####
+
+      #### ADD CASES CHANGED ####
 
       new_rows <- data.frame(
         value = EC,
@@ -179,7 +181,10 @@ performStadisticAnalysisUserVariableClassification <- function(
 
       totalWilcoxCases <- rbind(totalWilcoxCases, new_rows)
 
-      ### AÑADIMOS CONTROLES MANTENIDOS
+      #### ADD CASES CHANGED ####
+
+      #### ADD CASES MAINTAINED ####
+
       new_rows <- data.frame(
         value = EM,
         group = "Maintained",
@@ -188,274 +193,358 @@ performStadisticAnalysisUserVariableClassification <- function(
 
       totalWilcoxCases <- rbind(totalWilcoxCases, new_rows)
 
+      #### ADD CASES MAINTAINED ####
 
+    # If not, is a categorical feature
     } else {
 
+        # Getting levels of the factor of the categorical feature
         factor <- as.factor(clinic[[activePredictor]])
-
         length_factor <- length(levels(factor))
 
+        # Checking if it has more than 2 levels
         if (length_factor > 2) {
 
           #### ODDS RATIO FOR PREDICTORS WITH DEFAULT VALUE ####
 
+          # Checking if the feature has default value
           if(activePredictor %in% defaultOddsPredictors) {
 
-            # We obtain a string formed by the two values separated by /
+            ### DEFAULT ODDS RATIO CONTROLS ###
 
-            ### ODDS RATIO CC ###
-
+            # Dataframe for storing the odds information for the glm model
             clinic_odds <- data.frame(predictor = numeric(nrow(clinic)), odds = numeric(nrow(clinic)))
 
-            clinic_odds$predictor <- as.factor(clinic[[activePredictor]])
+            # Active predictor (factor already)
+            clinic_odds$predictor <- clinic[[activePredictor]]
+
+            # Vector with the patients changed from Controls to Cases of the feature
             clinic_odds$odds <- ifelse(clinic[[classVariable]] == secondGroup, 1, 0)
 
+            # glm predicting changes using the predictor
             model <- glm(odds ~ predictor, data = clinic_odds, family = binomial)
 
+            # "logistic.display2" for the odds ratios of the default value (first level) versus the others values
             logistic_info <- logistic.display2(model, crude = TRUE, crude.p.value = TRUE, decimal = 3)
 
+            # Logistic display in case of having more than 2 levels returns a table where, form row 2, each row contains the odds ratio of
+            # comparing the default value with each of the other values
             odd_ratio_table <- logistic_info$table
 
-            defaultValue <-  sub(".*=([^=]+)$", "\\1", rownames(odd_ratio_table)[1])
+            # In the row 1 is the text of the default value
+            defaultValue <-  gsub("predictor: ref.=", "", rownames(odd_ratio_table)[1])
 
+            # Number of patients maintained in Controls of the default value
             DCM <- sum(cPrima[[activePredictor]] == defaultValue)
 
+            # Number of patients changed from Controls to Cases of the default value
             DCC <- sum(ePrimaPrima[[activePredictor]] == defaultValue)
 
+            # iterating from every odds ratio value from the second row to the penultimate (the table has one last empty row)
             for (i in 2:(nrow(odd_ratio_table)-1)) {
 
+              # Process to obtain the value with which the default value is compared
               odd_ratio_str <- odd_ratio_table[i]
-
               actualValue <- trimws(rownames(odd_ratio_table)[i])
 
+              # Process to obtain the text "default value vs actual value"
               combinationName <- paste(activePredictor, "/", sep = "")
               combinationName <- paste(combinationName, defaultValue, sep = "")
               combinationName <- paste(combinationName, actualValue, sep = " vs ")
 
+              # Process to obtain the numeric values of the odd ratio, upper ci and lower ci
               OddRatioCC <- as.numeric(sub("\\s*\\(.*", "", odd_ratio_str))
               LowerCICC <- as.numeric(sub(".*\\((.*),.*", "\\1", odd_ratio_str))
               UpperCICC <- as.numeric(gsub("^.*\\(\\d+\\.\\d+,\\s*(\\d+\\.\\d+).*", "\\1", odd_ratio_str))
 
+              # Number of patients maintained in Controls of the actual value
               ACM <- sum(cPrima[[actualValue]] == defaultValue)
 
+              # Number of patients changed from Controls to Cases of the actual value
               ACC <- sum(ePrimaPrima[[actualValue]] == defaultValue)
 
+              # Updeting variable with the odds information and names of the Controls patients
               newRow <- data.frame(OddRatio = OddRatioCC, LowerCI = LowerCICC, UpperCI = UpperCICC, SUMCCFirst = DCC, SUMCCSecond = ACC, SUMCMFirst = DCM, SUMCMSecond = ACM)
               totalOddsControls <- rbind(totalOddsControls, newRow)
               namesCategoricOddsControls <- c(namesCategoricOddsControls, combinationName)
             }
 
-            ### ODDS RATIO CC ###
+            ### DEFAULT ODDS RATIO CONTROLS ###
 
+            ### DEFAULT ODDS RATIO CASES ###
 
-            ### ODDS RATIO EC ###
-
+            # Dataframe for storing the odds information for the glm model
             clinic_odds <- data.frame(predictor = numeric(nrow(clinic)), odds = numeric(nrow(clinic)))
 
-            clinic_odds$predictor <- as.factor(clinic[[activePredictor]])
+            # Active predictor (factor already)
+            clinic_odds$predictor <- clinic[[activePredictor]]
+
+            # Vector with the patients changed from Cases to Controls of the feature
             clinic_odds$odds <- ifelse(clinic[[classVariable]] == firstGroup, 1, 0)
 
+            # glm predicting changes using the predictor
             model <- glm(odds ~ predictor, data = clinic_odds, family = binomial)
 
+            # "logistic.display2" for the odds ratios of the default value (first level) versus the others values
             logistic_info <- logistic.display2(model, crude = TRUE, crude.p.value = TRUE, decimal = 3)
 
+            # Logistic display in case of having more than 2 levels returns a table where, form row 2, each row contains the odds ratio of
+            # comparing the default value with each of the other values
             odd_ratio_table <- logistic_info$table
 
-            defaultValue <-  sub(".*=([^=]+)$", "\\1", rownames(odd_ratio_table)[1])
+            # In the row 1 is the text of the default value
+            defaultValue <-  gsub("predictor: ref.=", "", rownames(odd_ratio_table)[1])
 
+            # Number of patients maintained in Cases of the default value
             DEM <- sum(ePrima[[activePredictor]] == defaultValue)
 
+            # Number of patients changed from Cases to Controls of the default value
             DEC <- sum(cPrimaPrima[[activePredictor]] == defaultValue)
 
+            # iterating from every odds ratio value from the second row to the penultimate (the table has one last empty row)
             for (i in 2:(nrow(odd_ratio_table)-1)) {
 
+              # Process to obtain the value with which the default value is compared
               odd_ratio_str <- odd_ratio_table[i]
 
+              # Process to obtain the text "default value vs actual value"
               combinationName <- paste(activePredictor, "/", sep = "")
               combinationName <- paste(combinationName, defaultValue, sep = "")
               combinationName <- paste(combinationName, trimws(rownames(odd_ratio_table)[i]), sep = " vs ")
 
+              # Process to obtain the numeric values of the odd ratio, upper ci and lower ci
               OddRatioEC <- as.numeric(sub("\\s*\\(.*", "", odd_ratio_str))
               LowerCIEC <- as.numeric(sub(".*\\((.*),.*", "\\1", odd_ratio_str))
               UpperCIEC <- as.numeric(gsub("^.*\\(\\d+\\.\\d+,\\s*(\\d+\\.\\d+).*", "\\1", odd_ratio_str))
 
+              # Number of patients maintained in Cases of the actual value
               AEM <- sum(ePrima[[actualValue]] == defaultValue)
 
+              # Number of patients changed from Cases to Controls of the actual value
               AEC <- sum(cPrimaPrima[[actualValue]] == defaultValue)
 
-              newRow <- data.frame(OddRatio = OddRatioCC, LowerCI = LowerCICC, UpperCI = UpperCICC, SUMCCFirst = DEC, SUMCCSecond = AEC, SUMCMFirst = DEM, SUMCMSecond = AEM)
+              # Updeting variable with the odds information and names of the Cases patients
+              newRow <- data.frame(OddRatio = OddRatioEC, LowerCI = LowerCIEC, UpperCI = UpperCIEC, SUMCCFirst = DEC, SUMCCSecond = AEC, SUMCMFirst = DEM, SUMCMSecond = AEM)
               totalOddsCases <- rbind(totalOddsCases, newRow)
               namesCategoricOddsCases <- c(namesCategoricOddsCases, combinationName)
 
             }
 
+            ### DEFAULT ODDS RATIO CASES ###
+
           }
 
+          # Whether a feature has a default value or not, the odds ratio of each value against the rest will be obtained
           for(i in 1:length_factor){
 
-              # We obtain a string formed by the two values separated by /
+              ### DEFAULT ODDS RATIO CONTROLS ###
 
-              ### ODDS RATIO CC ###
-
+              # The current level is obtained with which it will be compared against the rest to obtain the odds ratio
               level <- levels(factor)[i]
 
+              # Dataframe for storing the odds information for the glm model
               clinic_odds <- data.frame(predictor = numeric(nrow(clinic)), odds = numeric(nrow(clinic)))
 
+              # Active predictor as a factor
               clinic_odds$predictor <- as.factor(clinic[[activePredictor]])
+
+              # Predictor as a factor with the current value and in the remaining positions with others values the value "Rest"
               clinic_odds$predictor <- ifelse(clinic_odds$predictor == level, level, "Rest")
               clinic_odds$predictor <- as.factor(clinic_odds$predictor)
 
+              # Vector with the patients changed from Controls to Cases of the feature
               clinic_odds$odds <- ifelse(clinic[[classVariable]] == secondGroup, 1, 0)
 
+              # glm predicting changes using the predictor
               model <- glm(odds ~ predictor, data = clinic_odds, family = binomial)
 
+              # "logistic.display2" for the odd ratio between the actual value versus the others
               logistic_info <- logistic.display2(model, crude = TRUE, crude.p.value = TRUE, decimal = 3)
 
+              # Logistic display in case of having 2 levels returns a table where in the row 1 contains the odd ratio
               odd_ratio_table <- logistic_info$table
 
+              # Process to obtain the text "actual value vs Rest"
               combinationName <- paste(activePredictor, "/", sep = "")
               combinationName <- paste(combinationName, level, sep = "")
               combinationName <- paste(combinationName, " vs Rest", sep = "")
 
+              # Process to obtain the numeric values of the odd ratio, upper ci and lower ci
               odd_ratio_str <- odd_ratio_table[1]
-
               OddRatioCC <- as.numeric(sub("\\s*\\(.*", "", odd_ratio_str))
               LowerCICC <- as.numeric(sub(".*\\((.*),.*", "\\1", odd_ratio_str))
               UpperCICC <- as.numeric(gsub("^.*\\(\\d+\\.\\d+,\\s*(\\d+\\.\\d+).*", "\\1", odd_ratio_str))
 
+              # Number of patients maintained in Controls of the actual value and the rest
               DCM <- sum(cPrima[[activePredictor]] == level)
-              DCC <- sum(ePrimaPrima[[activePredictor]] == level)
-
               RCM <- sum(cPrima[[activePredictor]] != level)
+
+              # Number of patients changed from Controls to Cases of the actual value
+              DCC <- sum(ePrimaPrima[[activePredictor]] == level)
               RCC <- sum(ePrimaPrima[[activePredictor]] != level)
 
+              # Updeting variable with the odds information and names of the Controls patients
               newRow <- data.frame(OddRatio = OddRatioCC, LowerCI = LowerCICC, UpperCI = UpperCICC, SUMCCFirst = DCC, SUMCCSecond = RCC, SUMCMFirst = DCM, SUMCMSecond = RCM)
               totalOddsControls <- rbind(totalOddsControls, newRow)
               namesCategoricOddsControls <- c(namesCategoricOddsControls, combinationName)
 
-              ### ODDS RATIO CC ###
+              ### DEFAULT ODDS RATIO CONTROLS ###
 
+              ### DEFAULT ODDS RATIO CASES ###
 
-              ### ODDS RATIO EC ###
-
+              # Dataframe for storing the odds information for the glm model
               clinic_odds <- data.frame(predictor = numeric(nrow(clinic)), odds = numeric(nrow(clinic)))
 
+              # Active predictor as a factor
               clinic_odds$predictor <- as.factor(clinic[[activePredictor]])
+
+              # Predictor as a factor with the current value and in the remaining positions with others values the value "Rest"
               clinic_odds$predictor <- ifelse(clinic_odds$predictor == level, level, "Rest")
               clinic_odds$predictor <- as.factor(clinic_odds$predictor)
 
-
+              # Vector with the patients changed from Cases to Controls of the feature
               clinic_odds$odds <- ifelse(clinic[[classVariable]] == firstGroup, 1, 0)
 
+              # glm predicting changes using the predictor
               model <- glm(odds ~ predictor, data = clinic_odds, family = binomial)
 
+              # "logistic.display2" for the odd ratio between the actual value versus the others
               logistic_info <- logistic.display2(model, crude = TRUE, crude.p.value = TRUE, decimal = 3)
 
+              # Logistic display in case of having 2 levels returns a table where in the row 1 contains the odd ratio
               odd_ratio_table <- logistic_info$table
 
-
+              # Process to obtain the text "actual value vs Rest"
               combinationName <- paste(activePredictor, "/", sep = "")
               combinationName <- paste(combinationName, level, sep = "")
               combinationName <- paste(combinationName, " vs Rest", sep = "")
 
+              # Process to obtain the numeric values of the odd ratio, upper ci and lower ci
               odd_ratio_str <- odd_ratio_table[1]
-
               OddRatioEC <- as.numeric(sub("\\s*\\(.*", "", odd_ratio_str))
               LowerCIEC <- as.numeric(sub(".*\\((.*),.*", "\\1", odd_ratio_str))
               UpperCIEC <- as.numeric(gsub("^.*\\(\\d+\\.\\d+,\\s*(\\d+\\.\\d+).*", "\\1", odd_ratio_str))
 
+              # Number of patients maintained in Cases of the actual value and the rest
               DEM <- sum(ePrima[[activePredictor]] == level)
               DEC <- sum(cPrimaPrima[[activePredictor]] == level)
 
+              # Number of patients changed from Cases to Controls of the actual value
               REM <- sum(ePrima[[activePredictor]] != level)
               REC <- sum(cPrimaPrima[[activePredictor]] != level)
 
-              newRow <- data.frame(OddRatio = OddRatioCC, LowerCI = LowerCICC, UpperCI = UpperCICC, SUMCCFirst = DEC, SUMCCSecond = REC, SUMCMFirst = DEM, SUMCMSecond = REM)
+              # Updeting variable with the odds information and names of the Cases patients
+              newRow <- data.frame(OddRatio = OddRatioEC, LowerCI = LowerCIEC, UpperCI = UpperCIEC, SUMCCFirst = DEC, SUMCCSecond = REC, SUMCMFirst = DEM, SUMCMSecond = REM)
               totalOddsCases <- rbind(totalOddsCases, newRow)
               namesCategoricOddsCases <- c(namesCategoricOddsCases, combinationName)
 
+              ### DEFAULT ODDS RATIO CASES ###
           }
 
+        # if not, it has only 2 levels
         } else {
 
-          # We obtain a string formed by the two values separated by /
+            ### DEFAULT ODDS RATIO CONTROLS ###
 
-            ### ODDS RATIO CC ###
-
+            # Dataframe for storing the odds information for the glm model
             clinic_odds <- data.frame(predictor = numeric(nrow(clinic)), odds = numeric(nrow(clinic)))
 
+            # Active predictor as a factor
             clinic_odds$predictor <- as.factor(clinic[[activePredictor]])
+
+            # Vector with the patients changed from Controls to Cases of the feature
             clinic_odds$odds <- ifelse(clinic[[classVariable]] == secondGroup, 1, 0)
 
+            # glm predicting changes using the predictor
             model <- glm(odds ~ predictor, data = clinic_odds, family = binomial)
 
+            # "logistic.display2" for the odd ratio between the actual value versus the others
             logistic_info <- logistic.display2(model, crude = TRUE, crude.p.value = TRUE, decimal = 3)
 
+            # Logistic display in case of having 2 levels returns a table where in the row 1 contains the odd ratio
             odd_ratio_table <- logistic_info$table
 
+            # Getting the text of "Value 1 vs Value 2"
             defaultValue <-  gsub("predictor: ", "", rownames(odd_ratio_table)[1])
 
+            # Getting the text of "feature/Value 1 vs Value 2
             combinationName <- paste(activePredictor, "/", sep = "")
             combinationName <- paste(combinationName, defaultValue, sep = "")
 
+            # Process to obtain the numeric values of the odd ratio, upper ci and lower ci
             odd_ratio_str <- odd_ratio_table[1]
-
             OddRatioCC <- as.numeric(sub("\\s*\\(.*", "", odd_ratio_str))
             LowerCICC <- as.numeric(sub(".*\\((.*),.*", "\\1", odd_ratio_str))
             UpperCICC <- as.numeric(gsub("^.*\\(\\d+\\.\\d+,\\s*(\\d+\\.\\d+).*", "\\1", odd_ratio_str))
 
+            # Getting the two levels
             levels <- levels(clinic_odds$predictor)
 
+            # Number of patients maintained in Controls of the value 1 and value 2
             CM1 <- sum(cPrima[[activePredictor]] == levels[1])
-            CC1 <- sum(ePrimaPrima[[activePredictor]] == levels[1])
-
             CM2 <- sum(cPrima[[activePredictor]] == levels[2])
+
+            # Number of patients changed from Controls to Cases of the value 1 and value 2
+            CC1 <- sum(ePrimaPrima[[activePredictor]] == levels[1])
             CC2 <- sum(ePrimaPrima[[activePredictor]] == levels[2])
 
+            # Updeting variable with the odds information and names of the Controls patients
             newRow <- data.frame(OddRatio = OddRatioCC, LowerCI = LowerCICC, UpperCI = UpperCICC, SUMCCFirst = CC1, SUMCCSecond = CC2, SUMCMFirst = CM1, SUMCMSecond = CM2)
             totalOddsControls <- rbind(totalOddsControls, newRow)
             namesCategoricOddsControls <- c(namesCategoricOddsControls, combinationName)
 
-            ### ODDS RATIO CC ###
+            ### DEFAULT ODDS RATIO CONTROLS ###
 
+            ### DEFAULT ODDS RATIO CASES ###
 
-            ### ODDS RATIO EC ###
-
+            # Dataframe for storing the odds information for the glm model
             clinic_odds <- data.frame(predictor = numeric(nrow(clinic)), odds = numeric(nrow(clinic)))
 
+            # Active predictor as a factor
             clinic_odds$predictor <- as.factor(clinic[[activePredictor]])
+
+            # Vector with the patients changed from Cases to Controls of the feature
             clinic_odds$odds <- ifelse(clinic[[classVariable]] == firstGroup, 1, 0)
 
+            # glm predicting changes using the predictor
             model <- glm(odds ~ predictor, data = clinic_odds, family = binomial)
 
+            # "logistic.display2" for the odd ratio between the actual value versus the others
             logistic_info <- logistic.display2(model, crude = TRUE, crude.p.value = TRUE, decimal = 3)
 
+            # Logistic display in case of having 2 levels returns a table where in the row 1 contains the odd ratio
             odd_ratio_table <- logistic_info$table
 
-            defaultValue <-  sub(".*=([^=]+)$", "\\1", rownames(odd_ratio_table)[1])
+            # Getting the text of "Value 1 vs Value 2"
+            defaultValue <-  gsub("predictor: ", "", rownames(odd_ratio_table)[1])
 
+            # Getting the text of "feature/Value 1 vs Value 2
             combinationName <- paste(activePredictor, "/", sep = "")
             combinationName <- paste(combinationName, defaultValue, sep = "")
 
+            # Process to obtain the numeric values of the odd ratio, upper ci and lower ci
             odd_ratio_str <- odd_ratio_table[1]
-
-
             OddRatioEC <- as.numeric(sub("\\s*\\(.*", "", odd_ratio_str))
             LowerCIEC <- as.numeric(sub(".*\\((.*),.*", "\\1", odd_ratio_str))
             UpperCIEC <- as.numeric(gsub("^.*\\(\\d+\\.\\d+,\\s*(\\d+\\.\\d+).*", "\\1", odd_ratio_str))
 
+            # Getting the two levels
             levels <- levels(clinic_odds$predictor)
 
+            # Number of patients maintained in Cases of the value 1 and value 2
             EM1 <- sum(ePrima[[activePredictor]] == levels[1])
-            EC1 <- sum(cPrimaPrima[[activePredictor]] == levels[1])
-
             EM2 <- sum(ePrima[[activePredictor]] == levels[2])
+
+            # Number of patients changed from Cases to Controls of the value 1 and value 2
+            EC1 <- sum(cPrimaPrima[[activePredictor]] == levels[1])
             EC2 <- sum(cPrimaPrima[[activePredictor]] == levels[2])
 
-            newRow <- data.frame(OddRatio = OddRatioCC, LowerCI = LowerCICC, UpperCI = UpperCICC, SUMCCFirst = EC1, SUMCCSecond = EC2, SUMCMFirst = EM1, SUMCMSecond = EM2)
+            # Updeting variable with the odds information and names of the Cases patients
+            newRow <- data.frame(OddRatio = OddRatioEC, LowerCI = LowerCIEC, UpperCI = UpperCIEC, SUMCCFirst = EC1, SUMCCSecond = EC2, SUMCMFirst = EM1, SUMCMSecond = EM2)
             totalOddsCases <- rbind(totalOddsCases, newRow)
             namesCategoricOddsCases <- c(namesCategoricOddsCases, combinationName)
 
+            ### DEFAULT ODDS RATIO CASES ###
 
         }
 
@@ -463,26 +552,31 @@ performStadisticAnalysisUserVariableClassification <- function(
 
   }
 
+  # Adding the Odd Ratio names
   rownames(totalOddsControls) <- namesCategoricOddsControls
-  totalOddsControls$y <- namesCategoricOddsControls
-
   rownames(totalOddsCases) <- namesCategoricOddsCases
-  totalOddsCases$y <- namesCategoricOddsCases
 
+  # Printing NA Controls to Cases Odds Ratios
   na_rows_controls <- totalOddsControls[is.na(totalOddsControls$UpperCI), ]
 
   if (nrow(na_rows_controls) > 0) {
     cat("The following comparisons have obtained an infinite value in the upper limit of the Odds Ratio from Control to Cases patients:\n")
-    print(na_rows_controls$y)
+    print(rownames(na_rows_controls))
   }
 
+  # Removing Controls to Cases Odds Ratios with NA values
+  totalOddsControls <- totalOddsControls[!is.na(totalOddsControls$UpperCI), ]
+
+  # Printing NA Cases to Controls Odds Ratios
   na_rows_cases <- totalOddsCases[is.na(totalOddsCases$UpperCI), ]
 
   if (nrow(na_rows_cases) > 0) {
     cat("The following comparisons have obtained an infinite value in the upper limit of the Odds Ratio from Cases to Controls patients:\n")
-    print(na_rows_cases$y)
+    print(rownames(na_rows_cases))
   }
 
+  # Removing Cases to Controls Odds Ratios with NA values
+  totalOddsCases <- totalOddsCases[!is.na(totalOddsCases$UpperCI), ]
 
   name <- paste("GA", savingName, sep="_")
 
