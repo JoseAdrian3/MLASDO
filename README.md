@@ -10,7 +10,7 @@ The identification and correction of these erroneous situations becomes essentia
 
 ## What approach do we follow to solve it
 
-We follow three steps:
+We follow five steps:
 
 ### Step 1. Data preparation
 
@@ -32,19 +32,13 @@ The first step performed by MLASDO is to optimize an SVM to distinguish between 
 
 The detection of anomalous samples is based on their distance to the SVM classifier's hyperplane. For the linear kernel, distances to the decision boundary are calculated based on:
 
-\[
-D(x) = \sum_{k=1}^p \alpha_k K(x_k, x) + b
-\]
+$$D(x) = \sum_{k=1}^p \alpha_k K(x_k, x) + b$$
 
-\[
-|d(x)| = \frac{|D(x)|}{\|w\|}
-\]
+$$|d(x)| = \frac{|D(x)|}{\|w\|}$$
 
 For the radial kernel, distances are obtained with the expression:
 
-\[
-K(x, x') = \exp\left(-\gamma \sum_{i=1}^p (x_{ij} - x'_{ij})^2\right)
-\]
+$$K(x, x') = \exp\left(-\gamma \sum_{i=1}^p (x_{ij} - x'_{ij})^2\right)$$
 
 Anomalous samples are defined as those misclassified whose distance to the hyperplane is over a threshold. To determine an appropriate threshold, the MLASDO approach employs an elbow rule.
 
@@ -54,7 +48,7 @@ In order to verify the presence of the anomalous samples, MLASDO verifies whethe
 
 To this end, MLASDO trained different linear (SVM Linear and Lasso) and non-linear (SVM Radial and Random Forest) models but this time changing the label of the anomalous samples to the label assigned by MLASDO (i.e. AHC are changed to PD and APD are changed to HC).
 
-### Step 3. Generating reports to evidence the detection of abnormal cases
+### Step 5. Generating reports to evidence the detection of abnormal cases
 
 
 
@@ -168,7 +162,7 @@ MLASDO::detectAnomalies(
 ```
 
 ## Credits
-**Project Leader:** Juan Antonio Botia Blaya https://github.com/juanbot
+**Project Leaders:** Juan Antonio Botia Blaya https://github.com/juanbot and Alicia Gómez Pascual https://github.com/aliciagp
 
 **Main developer:** José Adrián Pardo Pérez https://github.com/JoseAdrian3
 
