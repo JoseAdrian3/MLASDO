@@ -1,62 +1,158 @@
 ---
-title: "Anomalous Cases Detection Report"
+title: "`r params$savingName`"
 author: ""
 date: "`r Sys.Date()`"
 output:
   html_document:
-    toc: true
-    toc_float: true
+    toc: false
+    toc_float: false
 params:
-  mlAlgorithm : ""
-  geneticAlgorithm : NULL
-  lassoPredictors : NULL
-  baselinePrecision : NULL
-  baselinePredictors : NULL
-  originalDiagnosis : NULL
-  clinicData : NULL
-  categoricActivePredictors : NULL,
-  numericActivePredictors : NULL,
-  selectedData : NULL
-  pcaAnalysis : NULL
-  pcaAnalysisSelected : NULL
-  pcaInfo: NULL
-  numericTable : NULL
-  totalTable : NULL
   classVariable: NULL
-  idColumn : NULL
-  predictorsToSelect : NULL
-  numTrees : NULL
-  mtry : NULL
-  splitRule : NULL 
-  sampleFraction : NULL
-  maxDepth : NULL
-  minNodeSize : NULL
-  bestLambda : NULL
-  nIterations : NULL 
-  nStopIter : NULL
-  populationSize : NULL 
-  diagnosticChangeProbability : NULL 
-  crossoverOperator : NULL
-  crossoverProbability : NULL 
-  selectionOperator : NULL
-  mutationOperator : NULL
-  mutationProbability : NULL 
-  nCores : NULL
-  seed : NULL
-  numModelExecutions : NULL
-  bestAfterDetectionCM : NULL
-  bestBaselineModelCM : NULL
-  predictorsImp : NULL
-  pcaAlpha : NULL
-  pcaSize : NULL
-  totalWilcoxControls : NULL
-  totalOddsControls : NULL
-  totalWilcoxCases : NULL
-  totalOddsCases : NULL
+  idColumn: NULL
+  numTrees: NULL
+  mtrysvm: NULL
+  mtrycentroids: NULL
+  diagnosticChangeProbability: NULL
+  nCores: NULL
+  seed: NULL
+  svmData: NULL
+  svmDataAll: NULL
+  #svmSolution: NULL
+  importanceSVMControl2Case: NULL
+  importanceSVMCase2Control: NULL
+  svm_lasso_after_cf: NULL
+  svm_lasso_after_model: NULL
+  svm_lasso_before_cf: NULL
+  svm_lasso_before_model: NULL
+  svm_RF_after_cf: NULL
+  svm_RF_after_model: NULL
+  svm_RF_before_cf: NULL
+  svm_RF_before_model: NULL
+  svmTotalWilcoxControls: NULL
+  svmTotalOddsControls: NULL
+  svmTotalWilcoxCases: NULL
+  svmTotalOddsCases: NULL
+  clinicDataSVM: NULL
+  originalDiagnosis: NULL
+  categoricActivePredictors: NULL
+  numericActivePredictors: NULL
+  svm_lasso_before_ci: NULL
+  svm_RF_before_ci: NULL
+  #enrich_case2control_changed: NULL
+  #enrich_case2control_maintained: NULL
+  #elbow_case2control: NULL
+  #enrich_control2case_changed: NULL
+  #enrich_control2case_maintained: NULL
+  #elbow_control2case: NULL
+  lambdas: NULL
+  C: NULL
+  gamma: NULL
+  svm_svmLinear_after_cf: NULL
+  svm_svmLinear_after_model: NULL
+  svm_svmLinear_before_cf: NULL
+  svm_svmLinear_before_model: NULL
+  svm_svmLinear_before_ci: NULL
+  svm_svmRadial_after_cf: NULL
+  svm_svmRadial_after_model: NULL
+  svm_svmRadial_before_cf: NULL
+  svm_svmRadial_before_model: NULL
+  svm_svmRadial_before_ci: NULL
+  savingName: NULL
+  partitionPercentage: NULL
+  kernel: NULL
+  enrichment: NULL
+  absolutePath: NULL
+  omicData: NULL
+  #modelsControl2Case: NULL
+  labelsControl2Case: NULL
+  hcControl2Case: NULL
+  xControl2Case: NULL
+  clustersControl2Case: NULL
+  dendControl2Case: NULL
+  importancesControl2Case: NULL
+  enrichmentsControl2Case: NULL
+  cmControl2Case: NULL
+  elbowsControl2Case: NULL
+  #modelsCase2Control: NULL
+  labelsCase2Control: NULL
+  hcCase2Control: NULL
+  xCase2Control: NULL
+  clustersCase2Control: NULL
+  dendCase2Control: NULL
+  importancesCase2Control: NULL
+  enrichmentsCase2Control: NULL
+  cmCase2Control: NULL
+  elbowsCase2Control: NULL
+  omic: NULL
+  genesCase2Control: NULL
+  genesControl2Case: NULL
+  domainTable: NULL
+  outliersSolution: NULL
+  thresholdControl: NULL
+  thresholdCase: NULL
+  mergeData: NULL
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo = FALSE}
+classVariable                <- params$classVariable
+idColumn                     <- params$idColumn
+numTrees                     <- params$numTrees
+mtrysvm                      <- params$mtrysvm
+mtrycentroids                <- params$mtrycentroids
+diagnosticChangeProbability  <- params$diagnosticChangeProbability
+nCores                       <- params$nCores
+seed                         <- params$seed
+svmData                      <- params$svmData
+svmDataAll                   <- params$svmDataAll
+importanceSVMControl2Case    <- params$importanceSVMControl2Case
+importanceSVMCase2Control    <- params$importanceSVMCase2Control
+svmTotalWilcoxControls       <- params$svmTotalWilcoxControls
+svmTotalOddsControls         <- params$svmTotalOddsControls
+svmTotalWilcoxCases          <- params$svmTotalWilcoxCases
+svmTotalOddsCases            <- params$svmTotalOddsCases
+clinicDataSVM                <- params$clinicDataSVM
+originalDiagnosis            <- params$originalDiagnosis
+categoricActivePredictors    <- params$categoricActivePredictors
+numericActivePredictors      <- params$numericActivePredictors
+lambdas                      <- params$lambdas
+C                            <- params$C
+gamma                        <- params$gamma
+savingName                   <- params$savingName
+partitionPercentage          <- params$partitionPercentage
+kernel                       <- params$kernel
+enrichment                   <- params$enrichment
+absolutePath                 <- params$absolutePath
+omicData                     <- params$omicData
+labelsControl2Case           <- params$labelsControl2Case
+hcControl2Case               <- params$hcControl2Case
+xControl2Case                <- params$xControl2Case
+clustersControl2Case         <- params$clustersControl2Case
+dendControl2Case             <- params$dendControl2Case
+importancesControl2Case      <- params$importancesControl2Case
+enrichmentsControl2Case      <- params$enrichmentsControl2Case
+cmControl2Case               <- params$cmControl2Case
+elbowsControl2Case           <- params$elbowsControl2Case
+labelsCase2Control           <- params$labelsCase2Control
+hcCase2Control               <- params$hcCase2Control
+xCase2Control                <- params$xCase2Control
+clustersCase2Control         <- params$clustersCase2Control
+dendCase2Control             <- params$dendCase2Control
+importancesCase2Control      <- params$importancesCase2Control
+enrichmentsCase2Control      <- params$enrichmentsCase2Control
+cmCase2Control               <- params$cmCase2Control
+elbowsCase2Control           <- params$elbowsCase2Control
+omic                         <- params$omic
+genesCase2Control            <- params$genesCase2Control
+genesControl2Case            <- params$genesControl2Case
+domainTable                  <- params$domainTable
+outliersSolution             <- params$outliersSolution
+thresholdControl             <- params$thresholdControl
+thresholdCase                <- params$thresholdCase
+mergeData                    <- params$mergeData
 ```
 
 ```{r, include=FALSE}
@@ -65,217 +161,118 @@ library(lazyeval)
 library(ggtext)
 ```
 
-```{r, include=FALSE}
-modelName <- ""
+# MLASDO {.tabset}
 
-if (mlAlgorithm == "Lasso"){
-  modelName <- "Lasso"
-  executeLasso <- TRUE
-  executeRF <- FALSE
-} else {
-  modelName <- "Random Forest"
-  executeLasso <- FALSE
-  executeRF <- TRUE
-}
+```{r, echo = FALSE}
+# percentage <- diagnosticChangeProbability * 100
 
-numExecutions <- length(params$geneticAlgorithm@summary[,1])
+N <- nrow(clinicDataSVM)
 
-maxPrecision <- round(params$geneticAlgorithm@fitnessValue * 100, 2)
+n_outliers <- sum(outliersSolution == 1) / N
 
-baselinePrecision <- round(params$baselinePrecision * 100, 2)
+percentage <- round(n_outliers * 100, 3)
 
-precisionLine <- round(params$baselinePrecision * 100, 0)
-
-predictorsLine <- params$baselinePredictors
-
-bestAfterDetectionCM <- params$bestAfterDetectionCM
-bestBaselineModelCM <- params$bestBaselineModelCM
-```
-
-```{r, include = FALSE}
-classVariable <- params$classVariable
-idColumn <- params$idColumn
-
-nCores <- params$nCores
-seed <- params$seed
-
-populationSize <- params$populationSize
-diagnosticChangeProbability <- params$diagnosticChangeProbability
-nIterations <- params$nIterations
-nStopIter <- params$nStopIter
-selectionOperator <- params$selectionOperator
-crossoverOperator <- params$crossoverOperator
-crossoverProbability <- params$crossoverProbability
-mutationOperator <- params$mutationOperator
-mutationProbability <- params$mutationProbability
-
-numModelExecutions <- params$numModelExecutions
-
-sampleFraction <- params$sampleFraction * 100
-
-if(is.null(params$numericActivePredictors)){
-  
-  numericVariables <- rownames(params$numericTable)
-
-} else {
-  
-  numericVariables <- params$numericActivePredictors
-}
- 
-
-if(is.null(params$categoricActivePredictors)){
-  
-  clinicNames <- names(params$clinicData)
-  
-  categoricVariables <- clinicNames[!(clinicNames %in% numericVariables)]
-  
-} else {
-  
-  categoricVariables <- params$categoricActivePredictors
-}
-```
-
-# 1. Parameters and hyperparameters used for anomalous case detection
-
-The class variable used in the anomalous sample detection process was **`r classVariable`**. The variable used as identifier of each patient has been **`r idColumn`**.
-
-This process has been performed by applying a parallelization with **`r nCores`** cores. In addition, the seed used in the process has been **`r seed`**.
-
-### 1.1 Parameters chosen for the genetic algorithm
-
-The choice of parameters for the execution of the genetic algorithm was as follows:
-
-- Size of the initial population: **`r populationSize`**.
-- Percentage of patients whose diagnosis is changed at the time of generating the initial population: **`r diagnosticChangeProbability`**.
-
-- Maximum number of iterations to perform: **`r nIterations`**.
-- Number of iterations to stop if the fitness value doesn't change: **`r nStopIter`**.
-
-- Selection operator: **`r selectionOperator`**.
-
-- Crossover operator: **`r crossoverOperator`**.
-- Probability of crossover: **`r crossoverProbability`**.
-
-- Mutation operator: **`r mutationOperator`**.
-- Probability of mutation: **`r mutationProbability`**.
-
-
-### 1.2 Model selection mechanism chosen
-Regarding the model selection mechanism:
-
-- The hyperparameter grid used contains a unique combination.
-- The type of validation used was repetition, specifically with **`r numModelExecutions`** repetitions.
- 
-### 1.3 Algorithm chosen and the hyperparameters chosen for it
-A `r modelName` model has been used to detect anomalous cases.
-
-`r if(executeLasso & bestLambda){"No hyperparameter is chosen for this model, since the alpha is chosen by R."}`
-
-`r if(executeLasso & !bestLambda){"The alpha used for the Lasso models executed was the best lambda obtained for the Baseline Lasso model."}`
-
-`r if(executeRF){"The following hyperparameters have been chosen for this model:"}`
-
-`r if(executeRF){paste("- Number of trees of the Random Forest model: ", "**", params$numTrees, "**.", sep = "")}`
-`r if(executeRF){paste("- Number of predictors that are evaluated at each partition (node) of each tree: ", "**", params$mtry, "**.", sep = "")}`
-`r if(executeRF){paste("- Rule used to select the predictor and the optimal value to separate a node into two branches during the tree construction: ", "**", params$splitRule, "**.", sep = "")}`
-`r if(executeRF){paste("- Fraction of the training data that will be used to create each of the trees in the forest: ", "**", sampleFraction, "**%.", sep = "")}`
-`r if(executeRF){paste("- Maximum height of each tree in the forest: ", "**", params$maxDepth, "**.", sep = "")}`
-`r if(executeRF){paste("- Minimum number of observations required in a node to be able to split it: ", "**", params$minNodeSize, "**.", sep = "")}`
-
-`r if(executeRF){paste("In the RF model it is necessary to indicate the number of predictors to be selected from the most important predictors. In this case the number of predictors selected has been: **", params$predictorsToSelect, "**." , sep = "")}`
-
-### 1.4 Categorization of clinical data
-
-The active predictors of numerical type are: `r paste("**", paste(numericVariables, collapse = ", "), "**", sep = "")`
-
-The active predictors of categorical type are: `r paste("**", paste(categoricVariables, collapse = ", "), "**", sep = "")`
-
-# 2. Evolution of the `r modelName` model during the detection
-
-```{r, include = FALSE}
-algorithmPrecisions <- params$geneticAlgorithm@summary[,1]
-
-precisionDF <- data.frame(generation = 1:length(algorithmPrecisions), precision = algorithmPrecisions * 100, meanPrecision = cummean(algorithmPrecisions * 100))
-
-hline <- function(y = 0, color = "black") {
-  list(
-    type = "line",
-    x0 = 0,
-    x1 = 1,
-    xref = "paper",
-    y0 = y,
-    y1 = y,
-    line = list(color = color)
-  )
-}
-```
-
-### 2.1 Evolution of the balanced accuracy obtained
-
-In the anomalous sample detection process, **`r numExecutions` iterations** have been performed. During this process, the accuracy has gone from **`r baselinePrecision`%** (Baseline) to **`r maxPrecision`%**.
-
-```{r, include = FALSE}
-precisionPlot <- plot_ly(precisionDF, x=~generation, y=~precision, hoveron = "points", hoverinfo = "text", text = paste("Maximum accuracy value obtained: ", round(precisionDF$precision, 2), "%<br>Generation: ", precisionDF$generation, sep = ""), type = 'scatter', mode = 'lines+markers', name ="Precision", color = I("cadetblue3"))
-  
-precisionPlot <- precisionPlot %>% add_trace(x=~generation, y = ~meanPrecision, name='Mean', mode = 'lines+markers', color = I("brown3"), hoverinfo = "text", text = paste("Average of the accuracies obtained: ", round(precisionDF$meanPrecision, 2), "%<br>Generation: ", precisionDF$generation, sep = "")) 
-    
-precisionPlot <- precisionPlot %>%  layout(title = "Evolution of the accuracy obtained during generations", xaxis = list(title = "Actual generation <br>"), yaxis = list(title = "Precision value <br> <br> <br>", ticksuffix = "%",  range = c(precisionLine - 5, min(100, (max(algorithmPrecisions) * 100) + 5)), xaxis = list(range = c(0, max(precisionDF$generation)))))
-
-precisionPlot <- precisionPlot %>% layout(shapes = list(hline(precisionLine))) %>%
-  add_annotations(x = length(algorithmPrecisions) - 3, y = precisionLine + 1, showarrow = F,
-           text = paste("Baseline precision: ", precisionLine, "%", sep = ""))
+gamma <- gamma
 ```
 
 ```{r, echo = FALSE}
-precisionPlot
+summaryClinic <- clinicDataSVM
 ```
 
-`r if(executeLasso){"### 2.2 Evolution of the number of predictors selected"}`
 
-`r if(executeLasso){paste(paste("Also, the mean number of selected predictors has gone from **", predictorsLine, "** (Baseline) to **", tail(params$lassoPredictors, n=1), "**",  sep = ""), ".", sep = "")}`
-```{r, include = FALSE, eval = executeLasso}
-predictorsDF <- data.frame(generation = 1:length(params$lassoPredictors), predictors = params$lassoPredictors)
+<!-- It has been decided to modify the top **`r percentage`%** from the total number of patients. -->
 
-maxPredictors <- max(params$lassoPredictors)
-minPredictors <- min(params$lassoPredictors)
+The MLASDO method works as follows:
+
+1.  An SVM model is optimized searching through the following hyperparameters:
+
+  - C: **`r C`**
   
-predictorsPlot <- plot_ly(predictorsDF, x=~generation, y=~predictors, hoveron = "points", hoverinfo = "text", text = paste("Mean number of predictors selected: ", round(predictorsDF$predictors, 2), "<br>Generation: ", precisionDF$generation, sep = ""), type = 'scatter', mode = 'lines+markers', name ="Number of predictors", color = I("#FF7256"))
+  - Kernel: **`r kernel`**
   
-predictorsPlot <- predictorsPlot %>%  layout(title = "Evolution of the number of predictors selected during generations", xaxis = list(title = "Actual generation <br>"), yaxis = list(title = "Number of predictors <br> <br> <br>", range = c(min(c(predictorsLine, min(params$lassoPredictors))) - 5, max(c(predictorsLine, max(params$lassoPredictors))) + 5), xaxis = list(range = c(0, max(predictorsDF$generation)))))
+  - gamma: **`r gamma`**
 
-predictorsPlot <- predictorsPlot %>% layout(shapes = list(hline(predictorsLine))) %>%
-  add_annotations(x = length(algorithmPrecisions) - 3, y = predictorsLine + (((maxPredictors - minPredictors) / 10) / 4 ), showarrow = F,
-           text = paste("Baseline selected predictors: ", predictorsLine, sep = ""))
-```
+2.  Once the best hyperparameters are found, the misclassified samples during cross-validation are observed.
 
-```{r, include = executeLasso, eval = executeLasso, echo = FALSE}
-predictorsPlot
-```
+3.  From these selected samples those furthest from the hyperplane generated by the SVM are chosen.
 
-`r if(executeLasso){"### 2.3 Confusion Matrix of the best model obtained before the detection"}`
-`r if(!executeLasso){"### 2.2 Confusion Matrix of the best model obtained before the detection"}`
+4. **HERE I HAVE TO EXPLAIN THE METHOD TO SELECT THE OUTLIERS**
+
+## Method results {.tabset}
+
+In this section you will see: **1)** the number of final modified cases and controls; **2)** svm accuracy results for each hyperparameter combination; and **3)** the performance of linear and nonlinear models with the original data versus the data with the modified patients.
+
+### 1. SVM accuracy
+
 ```{r, echo = FALSE}
-bestBaselineModelCM
+C <- svmData$best_c
+
+kernel <- svmData$best_kernel
+
+gamma <- svmData$best_gamma
+
+BalancedAccuracy <- round(svmData$best_balanced_acc,3)
 ```
 
-`r if(executeLasso){"### 2.4 Confusion Matrix of the best model obtained after the detection"}`
-`r if(!executeLasso){"### 2.3 Confusion Matrix of the best model obtained after the detection"}`
+The final hyperparameters of the SVM model are: C = **`r C`**, kernel = **`r kernel`** type and gamma = **`r gamma`**. The model has obtained a balanced accuracy of **`r BalancedAccuracy`**.
+
+```{r, echo = FALSE, warning=FALSE, fig.width=10, fig.height=10}
+svmDataAll_aux <- svmDataAll
+
+svmDataAll_aux$Status <- originalDiagnosis[svmDataAll_aux$index]
+
+ggplot(svmDataAll_aux, aes(x = c, y = mean_balanced_accuracy, color = kernel)) +
+  geom_line(aes(group = kernel)) +  # Línea para cada kernel
+  geom_point() +  # Puntos para cada valor
+  scale_x_log10() +  # Escala logarítmica en el eje X
+  facet_wrap(~ gamma, scales = "free_y") +  # Facetado por valores de Gamma
+  labs(title = "Balanced Accuracy by C, Kernel and Gamma", 
+       x = "C", 
+       y = "Balanced Accuracy") +
+  theme_minimal()
+```
+
+
+
+### 2. Outliers samples detected 
+
 ```{r, echo = FALSE}
-bestAfterDetectionCM
+original_Case_samples <- mergeData[mergeData[[classVariable]] == "Case", ]
+original_Control_samples <- mergeData[mergeData[[classVariable]] == "Control", ]
+
+# Combine data for plotting
+plot_data_original <- rbind(
+  data.frame(distance = original_Case_samples$distance, Group = "Case"),
+  data.frame(distance = original_Control_samples$distance, Group = "Control")
+)
+
+# Plot the density distributions
+ggplot(plot_data_original, aes(x = distance, fill = Group)) +
+  geom_density(alpha = 0.5) +
+  labs(
+    title = "Distribution of distances for cases and controls",
+    x = "Distance",
+    y = "Density"
+  ) +
+  theme_minimal() + 
+  geom_vline(xintercept = thresholdCase, linetype = "dashed", color = "red") +
+  geom_vline(xintercept = thresholdControl, linetype = "dashed", color = "blue")
 ```
 
-# 4. Diagnostics distribution before and after the detection
+
+### 3. Diagnostics distribution
+
 ```{r, include = FALSE}
 originalDF <- data.frame(
-  Case = sum(params$originalDiagnosis == "Case"),
-  Control = sum(params$originalDiagnosis == "Control")
+  Case = sum(originalDiagnosis == "Case"),
+  Control = sum(originalDiagnosis == "Control")
 )
 
 changedDF <- data.frame(
-  Case = sum(params$clinicData[[params$classVariable]] == "Case"),
-  Control = sum(params$clinicData[[params$classVariable]] == "Control"),
-  Case2Control = sum(params$clinicData[[params$classVariable]] == "Case2Control"),
-  Control2Case = sum(params$clinicData[[params$classVariable]] == "Control2Case")
+  Case = sum(clinicDataSVM[[classVariable]] == "Case"),
+  Control = sum(clinicDataSVM[[classVariable]] == "Control"),
+  Case2Control = sum(clinicDataSVM[[classVariable]] == "Case2Control"),
+  Control2Case = sum(clinicDataSVM[[classVariable]] == "Control2Case")
 )
 ```
 
@@ -313,847 +310,1250 @@ distributionDashboard <- subplot(originalBars, changedBars, nrows = 1, margin = 
 distributionDashboard <- distributionDashboard %>%  layout(title = "Distribution of patient diagnoses", showlegend = FALSE)
 ```
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, fig.height=5}
 distributionDashboard
 ```
 
-# 5. PCA Analysis
+### 4. Models performance
 
-```{r, include = FALSE}
-pcaInfo <- params$pcaInfo
+```{r, echo = FALSE}
+lambdas <- params$lambdas
+
+min.lambda <- min(lambdas)
+max.lambda <- max(lambdas)
+
+n_lambdas <- length(lambdas)
+
+C <- params$C
+
+min.c <- min(C)
+max.c <- max(C)
+
+n_c <- length(C)
 ```
 
-### 5.1 PCA Analysis over total predictors
+```{r, echo = FALSE}
+trainN <- partitionPercentage * 100
 
-```{r, include = FALSE}
-classVariable <- params$pcaAnalysis[[params$classVariable]]
+testN <- (1 - partitionPercentage)* 100
+```
 
-pcaAnalysis <- ggplot(params$pcaAnalysis, aes(PC1, PC2)) + 
-    modelr::geom_ref_line(h = 0) +
-    modelr::geom_ref_line(v = 0) +
-    geom_jitter(aes(color = classVariable, size = classVariable, alpha = classVariable)) +
-    scale_color_manual(values = c(Case = "#EE3B3B",
-                                  Case2Control = "#B23AEE",
-                                  Control = "#A2CD5A",
-                                  Control2Case = "#00E5EE")) +
+The results below summarize the performance of lineal models (lasso and svmLinear) and non lineal models (Random Forest and svmRadial) predicting **`r classVariable`** in the original data and after the status changes.
+
+Training was performed using 10-fold cross-validation (which confidence interval will be reported) using **`r trainN`%** of the omic dataset as training set and leaving the rest for test.
+
+The Random Forest model uses: numTrees = **`r numTrees`** and mtry = **`r mtrysvm`**.
+
+The Lasso model uses **`r n_lambdas`** number of lambdas from **`r min.lambda`** to **`r max.lambda`**.
+
+The SVM models uses **`r n_c`** number of costs from **`r min.c`** to **`r max.c`**.
+
+```{r, echo = FALSE}
+# Assuming the confusion matrices are already created and contain Balanced Accuracy
+# Extract Balanced Accuracy from confusion matrices
+rf_before_balanced_accuracy <- round(params$svm_RF_before_cf$byClass['Balanced Accuracy'], 3)
+rf_after_balanced_accuracy <- round(params$svm_RF_after_cf$byClass['Balanced Accuracy'], 3)
+
+lasso_before_balanced_accuracy <- round(params$svm_lasso_before_cf$byClass['Balanced Accuracy'], 3)
+lasso_after_balanced_accuracy <- round(params$svm_lasso_after_cf$byClass['Balanced Accuracy'], 3)
+
+calculate_balanced_accuracy <- function(conf_matrix) {
+  TP <- conf_matrix["Case", "Case"]
+  FN <- conf_matrix["Control", "Case"]
+  FP <- conf_matrix["Case", "Control"]
+  TN <- conf_matrix["Control", "Control"]
   
-    scale_alpha_manual(values = c(Case = params$pcaAlpha,
-                                Case2Control = 1,
-                                Control = params$pcaAlpha,
-                                Control2Case = 1)) +
-    scale_size_manual(values = c(Case = 1,
-                                 Case2Control = params$pcaSize,
-                                 Control = 1,
-                                 Control2Case = params$pcaSize)) +
-    xlab(paste("First Principal Component (", pcaInfo["PC1"], "% variability explained)", sep = "")) + 
-    ylab(paste("Second Principal Component (", pcaInfo["PC2"], "% variability explained)", sep = "")) + 
-    labs(title = paste("PCA Analysis of Changed Diagnostics<br><br>", pcaInfo["PC1"] + pcaInfo["PC2"], "% variability explained by PC1 and PC2", sep = ""))  +
-    theme(plot.title.position = "panel",
-        plot.title = element_markdown(),
-        legend.position = "right")
-```
-
-```{r, echo = FALSE}
-pcaAnalysis
-```
-
-### 5.2 PCA Analysis over the selected predictors by the model
-```{r, include = FALSE}
-pcaSelected <- ggplot(params$pcaAnalysisSelected, aes(PC1, PC2)) + 
-    modelr::geom_ref_line(h = 0) +
-    modelr::geom_ref_line(v = 0) +
-        geom_jitter(aes(color = classVariable, size = classVariable, alpha = classVariable)) +
-    scale_color_manual(values = c(Case = "#EE3B3B",
-                                  Case2Control = "#B23AEE",
-                                  Control = "#A2CD5A",
-                                  Control2Case = "#00E5EE")) +
+  sensitivity <- TP / (TP + FN)
+  specificity <- TN / (TN + FP)
   
-    scale_alpha_manual(values = c(Case = params$pcaAlpha,
-                                Case2Control = 1,
-                                Control = params$pcaAlpha,
-                                Control2Case = 1)) +
-    scale_size_manual(values = c(Case = 1,
-                                 Case2Control = params$pcaSize,
-                                 Control = 1,
-                                 Control2Case = params$pcaSize)) +
-    xlab(paste("First Principal Component (", pcaInfo["PC1Selected"], "% variability explained)", sep = "")) + 
-    ylab(paste("Second Principal Component (", pcaInfo["PC2Selected"], "% variability explained)", sep = "")) + 
-    labs(title = paste("PCA Analysis of Changed Diagnostics in selected predictors<br><br>", pcaInfo["PC1Selected"] + pcaInfo["PC2Selected"], "% variability explained by PC1 and PC2", sep = ""))  +
-    theme(plot.title.position = "panel",
-        plot.title = element_markdown(),
-        legend.position = "right")
-```
-
-
-```{r, echo = FALSE}
-pcaSelected
-```
-
-# 6. Importance of final selected predictors
-```{r, echo = FALSE}
-DT::datatable(params$predictorsImp, class = 'cell-border stripe', options = list(scrollX = TRUE))
-```
-
-# 7. Omics for the final selected predictors
-```{r, echo = FALSE}
-DT::datatable(params$selectedData, class = 'cell-border stripe', options = list(scrollX = TRUE))
-```
-
-# 8. Clinical data for individuals in the study
-```{r, echo = FALSE}
-DT::datatable(params$clinicData, class = 'cell-border stripe', options = list(scrollX = TRUE))
-```
-
-# 9. Ratio Analysis
-
-```{r, include=FALSE}
-numericTable <- params$numericTable
-
-totalTable <- params$totalTable
-```
-
-```{r, include = FALSE}
-totalTable$percentageCCCM <- totalTable$CCCM - 1
-totalTable$percentageCCCM <- totalTable$percentageCCCM * 100
-
-totalTable$percentageECEM <- totalTable$ECEM - 1
-totalTable$percentageECEM <- totalTable$percentageECEM * 100
-
-totalTable$percentageCE <- totalTable$CE - 1
-totalTable$percentageCE <- totalTable$percentageCE * 100
-
-totalTable$logCCCM <- ifelse(totalTable$CCCM == 0, 1, totalTable$CCCM)
-
-totalTable$logCCCM <- log(totalTable$logCCCM, base = 2)
-
-totalTable$logECEM <- ifelse(totalTable$ECEM == 0, 1, totalTable$ECEM)
-
-totalTable$logECEM <- log(totalTable$logECEM, base = 2)
-
-totalTable$logCE <- ifelse(totalTable$CE == 0, 1, totalTable$CE)
-
-totalTable$logCE <- log(totalTable$logCE, base = 2)
-```
-
-```{r, include = FALSE}
-maxCCCM <- max(totalTable$logCCCM)
-minCCCM <- min(totalTable$logCCCM)
-
-maxECEM <- max(totalTable$logECEM)
-minECEM <- min(totalTable$logECEM)
-
-maxCE <- max(totalTable$logCE)
-minCE <- min(totalTable$logCE)
-
-if(abs(maxCCCM) + abs(minCCCM) > 3){
-  sepCCCM <- 0.5
-} else if(abs(maxCCCM) + abs(minCCCM) > 1) {
-  sepCCCM <- 0.25
-} else {
-  sepCCCM <- 0.1
+  balanced_accuracy <- (sensitivity + specificity) / 2
+  return(round(balanced_accuracy, 3))
 }
 
-if(abs(maxECEM) + abs(minECEM) > 3){
-  sepECEM <- 0.5
-} else if(abs(maxECEM) + abs(minECEM) > 1) {
-  sepECEM <- 0.25
-} else {
-  sepECEM <- 0.1
-}
+# Calcular Balanced Accuracy para cada caso
+svmLinear_before_balanced_accuracy <- calculate_balanced_accuracy(params$svm_svmLinear_before_cf)
+svmRadial_before_balanced_accuracy <- calculate_balanced_accuracy(params$svm_svmRadial_before_cf)
+
+svmLinear_after_balanced_accuracy <- calculate_balanced_accuracy(params$svm_svmLinear_after_cf)
+svmRadial_after_balanced_accuracy <- calculate_balanced_accuracy(params$svm_svmRadial_after_cf)
 
 
-if(abs(maxCE) + abs(minCE) > 3){
-  sepCE <- 0.5
-} else if(abs(maxCE) + abs(minCE) > 1) {
-  sepCE <- 0.25
-} else {
-  sepCE <- 0.1
-}
+# svmLinear_before_balanced_accuracy <- round(params$svm_svmLinear_before_cf$byClass['Balanced Accuracy'], 3)
+# svmLinear_after_balanced_accuracy <- round(params$svm_svmLinear_after_cf$byClass['Balanced Accuracy'], 3)
+# 
+# svmRadial_before_balanced_accuracy <- round(params$svm_svmRadial_before_cf$byClass['Balanced Accuracy'], 3)
+# svmRadial_after_balanced_accuracy <- round(params$svm_svmRadial_after_cf$byClass['Balanced Accuracy'], 3)
+
+
+# Extraer intervalos de confianza (CI) para Balanced Accuracy y redondear a 3 decimales
+rf_before_ci <- round(params$svm_RF_before_ci, 3)
+lasso_before_ci <- round(params$svm_lasso_before_ci, 3)
+svmLinear_before_ci <- round(params$svm_svmLinear_before_ci, 3)
+svmRadial_before_ci <- round(params$svm_svmRadial_before_ci, 3)
+
+# Crear la tabla con las columnas intercambiadas y redondeos aplicados
+balanced_accuracy_table <- data.frame(
+  Model = c("Random Forest", "Lasso", "svmLinear", "svmRadial"),
+  Train_CI = c(paste0("(", rf_before_ci[1], ", ", rf_before_ci[2], ")"),
+                paste0("(", lasso_before_ci[1], ", ", lasso_before_ci[2], ")"),
+                paste0("(", svmLinear_before_ci[1], ", ", svmLinear_before_ci[2], ")"),
+                paste0("(", svmRadial_before_ci[1], ", ", svmRadial_before_ci[2], ")")),
+  Original_Test = c(rf_before_balanced_accuracy, lasso_before_balanced_accuracy, svmLinear_before_balanced_accuracy, svmRadial_before_balanced_accuracy),
+  Changed_Test = c(rf_after_balanced_accuracy, lasso_after_balanced_accuracy, svmLinear_after_balanced_accuracy, svmRadial_after_balanced_accuracy)
+)
+
+# Imprimir tabla en formato markdown
+knitr::kable(balanced_accuracy_table, caption = "Balanced Accuracy before and after changes with Confidence Intervals")
 ```
 
 
-```{r, include = FALSE}
-assignColor <- function(value){
-  if(value == 0){
-    return("black")
-  } else if (abs(value) < 0.5){
-    return("gold")
-  } else if (abs(value) < 1.5){
-    return("orange")
-  } else {
-    return("red")
+## Covariables analysis {.tabset}
+
+In this section you will see: **1)** the statistical results to analyze how the modified patients differ from the rest of their class
+and **2)** the local explainability where the most outlier patients detected can be individually examined;
+
+<!-- ; and **3)** a summary table of the previous statistical results. -->
+
+<!-- Modal Personalizado -->
+<div id="customModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:50%; max-height:80%; padding:20px; background:white; border:1px solid #ccc; z-index:10000;">
+  <div id="modalContent" style="max-height:60vh; overflow-y:auto;"></div>
+  <button onclick="$('#customModal').hide()">Close</button>
+</div>
+
+```{r, echo = FALSE, warning = FALSE}
+# Paso 1: Calcular la posición x correspondiente al 5% del número de filas
+# N <- nrow(clinicDataSVM)
+
+x_pos_num <- round(n_outliers * N)  # Añadimos 1 para alinearnos con la indexación de Plotly
+
+df <- svmData$selected_samples
+
+df_sorted <- df[order(df$distance, decreasing = TRUE), ]
+
+clinic_ordered <- clinicDataSVM[
+  clinicDataSVM[[classVariable]] %in% c("Case2Control", "Control2Case"),
+]
+```
+
+
+```{r, echo = FALSE, warning = FALSE}
+if(nrow(clinic_ordered) > 0){
+
+  map_values_with_domain_table <- function(df, domain_table) {
+    # Crear una copia del dataframe para modificaciones
+    df_mapped <- df
+    
+    # Iterar sobre las filas de domain_table
+    for (i in seq_len(nrow(domain_table))) {
+      
+      row <- domain_table[i, ]
+      feature <- as.character(row$Feature)
+      value_condition <- as.character(row$Value)
+      sign <- as.character(row$Sign)
+      group <- as.character(row$Group)
+      
+      # Seleccionar el subconjunto según el grupo
+      subset_condition <- df[[classVariable]] == group
+      
+      # Determinar si `value_condition` es una condición lógica o un valor específico
+      if (grepl("^==", value_condition)) {
+        # Condición específica de igualdad (== algo)
+        target_value <- as.numeric(sub("==", "", value_condition))
+        condition_met <- df[[feature]] == target_value
+      } else if (grepl("^[><=]", value_condition)) {
+        # Otras condiciones lógicas que requieren eval(parse(...))
+        
+          numeric_column <- as.numeric(as.character(df[[feature]]))
+          condition_met <- with(df, eval(parse(text = paste0("numeric_column ", value_condition))))
+      } else {
+        # Valor específico sin condición, comparamos directamente
+        condition_met <- df[[feature]] == value_condition
+      }
+      
+      df_mapped[[feature]] <- ifelse(
+        subset_condition & condition_met,
+        paste0(df[[feature]], " ", sign),
+        df_mapped[[feature]]
+      )
+    }
+    
+    return(df_mapped)
   }
-}
-```
-
-```{r, include=FALSE}
-totalTable$ColorsCCCM <- NA
-totalTable$ColorsECEM <- NA
-totalTable$ColorsCE <- NA
-
-totalTable$textCCCM <- NA
-totalTable$textECEM <- NA
-totalTable$textCE <- NA
-
-columns <- c("CE", "CCCM", "ECEM")
-
-for(indexRatio in 1:nrow(totalTable)){
   
-  for(col in columns){
-    
-    text <- ""
-    percentageText <- ""
+  # Aplicar la función a clinic_ordered
+  clinic_ordered_mapped <- map_values_with_domain_table(clinic_ordered, domainTable)
   
-    totalTable[[paste0("Colors", col)]][indexRatio] <- sapply(
-                                                          totalTable[[paste0("log", col)]][indexRatio], 
-                                                          assignColor
-                                                        )
-    long <- nchar(col)
-    
-    firstHalf <- substr(col, 1, long/2)
-    secondHalf <- substr(col, long/2 + 1, long)
-    
-    if(rownames(totalTable)[indexRatio] %in% numericVariables){
-    
-      varName <- strsplit(rownames(totalTable)[indexRatio], " vs ")[[1]][1]
-      
-      text <- paste("Variable", varName, "(numeric)", "<br>", sep = " ")
-      
-      text <- paste(text, paste("Ratio changed vs unchanged for ", varName, ": ", sep = ""), round(totalTable[[col]][indexRatio], digits = 3), " = (", round(numericTable[rownames(totalTable)[indexRatio], paste0("Mean", firstHalf)], digits = 3), "/", round(numericTable[rownames(totalTable)[indexRatio], paste0("Mean", secondHalf)], digits = 3), ")",  sep = "")
-      
-      text <- paste(text, "Ratio (logaritmic scale):", sep = "<br>")
-      text <- paste(text, round(totalTable[[paste0("log", col)]][indexRatio], digits = 3),  sep = " ")
-      
-      if(col == "CCCM"){
-        text <- paste(text, "Control individuals moved to Case:", sep = "<br>")
-      } else if(col == "ECEM"){
-        text <- paste(text, "Case individuals moved to Case:", sep = "<br>")
-      } else {
-        text <- paste(text, "Control individuals before genetic:", sep = "<br>")
-      }
-      text <- paste(text, numericTable[rownames(totalTable)[indexRatio], paste0("NumPatients", firstHalf)], sep = " ")
-      
-      if(col == "CCCM" | col == "ECEM"){
-        text <- paste(text, paste("Mean", varName , "for changed individuals:", sep = " "), sep = "<br>")
-      }  else {
-        text <- paste(text, paste("Mean", varName , "for Control individuals:", sep = " "), sep = "<br>")
-      }
-      text <- paste(text, round(numericTable[rownames(totalTable)[indexRatio], paste0("Mean", firstHalf)], digits = 3), sep = " ")
-      
-      if(col == "CCCM" | col == "ECEM"){
-        text <- paste(text, "Unchanged individuals:", sep = "<br>")
-      }  else {
-        text <- paste(text, "Case individuals before genetic:", sep = "<br>")
-      }
-      text <- paste(text, numericTable[rownames(totalTable)[indexRatio], paste0("NumPatients", secondHalf)], sep = " ")
-      
-      if(col == "CCCM" | col == "ECEM"){
-        text <- paste(text, paste("Mean", varName,  "for unchanged individuals", sep = " "), sep = "<br>")
-      }  else {
-        text <- paste(text, paste("Mean", varName,  "for Case individuals", sep = " "), sep = "<br>")
-      }
-      text <- paste(text, round(numericTable[rownames(totalTable)[indexRatio], paste0("Mean", secondHalf)], digits = 3), sep = " ")
-      
-      percentageText <- paste("**", varName, "** is **numeric**. ", sep = "")
-        
-      percentageText <- paste(percentageText, "The ratio of mean values for ", varName, " in changed individuals versus those unchanged is **", round(totalTable[[col]][indexRatio], digits = 3), "**", sep = "")
-       
-      
-      if(totalTable[[col]][indexRatio] != 0){
-        
-        if (totalTable[[paste0("percentage", col)]][indexRatio] > 0){
-          
-          percentageText <- paste(percentageText, ", i.e., the ", varName, " values for changed individuals is **", round(totalTable[[paste0("percentage", col)]][indexRatio], digits = 1), "**% **higher** than those unchanged.", sep = "")
-          
-        } else {
-          
-          percentageText <- paste(percentageText, ", i.e., the ", varName, " values for changed individuals is **", abs(round(totalTable[[paste0("percentage", col)]][indexRatio], digits = 1)), "**% **less** than those unchanged.", sep = "")
-        }
-        
-      } else{
-        percentageText <- paste(percentageText, ".", sep = "")
-      }
-      
-      
-    } else {
-
-    predictor <- strsplit(rownames(totalTable)[indexRatio], " vs ")[[1]][1]
-    
-    allFlag = FALSE
-    
-    if (grepl("all =", predictor)) {
-      allFlag = TRUE
-    }
-    
-    if(!allFlag){
-      predictorValue <- strsplit(predictor, " ")[[1]][2]
-      predictorValue <- replace(predictorValue, is.na(predictorValue), "Empty")
-      
-      vsValue <- strsplit(rownames(totalTable)[indexRatio], " vs ")[[1]][2]
-      vsValue <- replace(vsValue, is.na(vsValue), "Empty")
-    } else {
-      
-      predictorValue <- strsplit(predictor, " ")[[1]][4]
-      predictorValue <- replace(predictorValue, is.na(predictorValue), "Empty")
-      
-    }
-    
-    varName <- strsplit(predictor, " ")[[1]][1]
-    
-    text <- paste("Variable", varName, "(categorical), values: ", sep = " ")
-    
-    if(nchar(paste(sort(unique(params$clinicData[[varName]]), decreasing = TRUE), collapse = ", ")) > 60){
-      
-      values <- unique(params$clinicData[[varName]])
-      
-      divisions <- ceiling(nchar(paste(sort(unique(params$clinicData[[varName]]), decreasing = TRUE), collapse = ", ")) / 60)
-      
-      nValuesInDivision <- as.integer(length(values) / divisions)
-        
-      for(h in 1:length(values)){
-        
-        text <- paste(text, values[h], sep = "")
-        
-        if(h %% nValuesInDivision == 0){
-          
-          if(h != length(values)){
-            text <- paste(text, "<br>", sep = "")
-          }
-        
-        } else {
-          text <- paste(text, ", ", sep = "")
-        }
-        
-      }
-      
-      text <- paste(text, "<br>", sep = "")
-      
-    } else {
-      
-      text <- paste(text, paste(sort(unique(params$clinicData[[varName]]), decreasing = TRUE), collapse = ", "), "<br>", sep = " ")
-    }
-    
-    if(allFlag){
-      
-      text <- paste(text, "Ratio for value ", predictorValue, ": ", round(totalTable[[col]][indexRatio], digits = 3), sep = "")
-      
-    } else {
-      
-      text <- paste(text, "Ratio for value ", predictorValue, ": ", round(totalTable[[col]][indexRatio], digits = 3), " = (", totalTable[[paste0("Sum", firstHalf, "Numerator")]][indexRatio], "/", totalTable[[paste0("Sum", firstHalf, "Denominator")]][indexRatio], ")/(", totalTable[[paste0("Sum", secondHalf, "Numerator")]][indexRatio], "/", totalTable[[paste0("Sum", secondHalf, "Denominator")]][indexRatio], ")",  sep = "")
-      
-    }
-    
-    text <- paste(text, "Ratio (logaritmic scale):", sep = "<br>")
-    text <- paste(text, round(totalTable[[paste0("log", col)]][indexRatio], digits = 3),  sep = " ")
-
-    text <- paste(text, "<br>", sep = "")
-    
-    if(col == "CCCM" | col == "ECEM"){
-      text <- paste(text, predictorValue, " individuals changed:", sep = "")
-    } else {
-      text <- paste(text, predictorValue, " Control individuals before genetic:", sep = "")
-    }
-    text <- paste(text, totalTable[[paste0("Sum", firstHalf, "Numerator")]][indexRatio], sep = " ")
-    text <- paste(text, "<br>", sep = "")
-    
-    if(!allFlag){
-      
-      if(col == "CCCM" | col == "ECEM"){
-        text <- paste(text, vsValue, " individuals changed:", sep = "")
-      } else {
-        text <- paste(text, vsValue, " Control individuals before genetic:", sep = "")
-      }
-      text <- paste(text, totalTable[[paste0("Sum", firstHalf, "Denominator")]][indexRatio], sep = " ")
-      text <- paste(text, "<br>", sep = "")
-    }
-    
-    if(col == "CCCM" | col == "ECEM"){
-      text <- paste(text, predictorValue, " individuals unchanged:", sep = "")
-    } else {
-      text <- paste(text, predictorValue, " Case individuals before genetic:", sep = "")
-    }
-    text <- paste(text, totalTable[[paste0("Sum", secondHalf, "Numerator")]][indexRatio], sep = " ")
-
-    if(!allFlag){
-      text <- paste(text, "<br>", sep = "")
-      
-      if(col == "CCCM" | col == "ECEM"){
-        text <- paste(text, vsValue, " individuals unchanged:", sep = "")
-      } else {
-        text <- paste(text, vsValue, " Case individuals before genetic:", sep = "")
-      }
-      text <- paste(text, totalTable[[paste0("Sum", secondHalf, "Denominator")]][indexRatio], sep = " ")
-    }
-    
-    percentageText <- paste("Variable **", varName, "**, value **", predictorValue, "**. ", sep = "")
-    
-    if(!allFlag){
-      
-      if(col == "CCCM" | col == "ECEM"){
-        
-        percentageText <- paste(percentageText, "The proportion of changed individuals with **", predictorValue, " versus ", vsValue, "** is **", totalTable[[paste0("Sum", firstHalf, "Numerator")]][indexRatio], "/", totalTable[[paste0("Sum", firstHalf, "Denominator")]][indexRatio], "**. ", sep = "")
-      
-        percentageText <- paste(percentageText, "The proportion of unchanged individuals with **", predictorValue, " versus ", vsValue, "** is **", totalTable[[paste0("Sum", secondHalf, "Numerator")]][indexRatio], "/", totalTable[[paste0("Sum", secondHalf, "Denominator")]][indexRatio], "**. ", sep = "")
-        
-      } else {
-        
-        percentageText <- paste(percentageText, "The proportion of Control with **", predictorValue, " versus ", vsValue, "** is **", totalTable[[paste0("Sum", firstHalf, "Numerator")]][indexRatio], "/", totalTable[[paste0("Sum", firstHalf, "Denominator")]][indexRatio], "**. ", sep = "")
-      
-        percentageText <- paste(percentageText, "The proportion of Case individuals with **", predictorValue, " versus ", vsValue, "** is **", totalTable[[paste0("Sum", secondHalf, "Numerator")]][indexRatio], "/", totalTable[[paste0("Sum", secondHalf, "Denominator")]][indexRatio], "**. ", sep = "")
-        
-      }
-    
-      percentageText <- paste(percentageText, "The ratio between proportions is **", round(totalTable[[col]][indexRatio], digits = 3), "**. ", sep = "")
-      
-      if(totalTable[[col]][indexRatio] != 0){
-        
-        percentageText <- paste(percentageText, "Hence there are **", round(totalTable[[col]][indexRatio], digits = 3), " times " , sep = "")
-        
-        if (totalTable[[paste0("percentage", col)]][indexRatio] > 0){
-          
-          percentageText <- paste(percentageText, "more individuals** with ", predictorValue, " values in the changed individuals, i.e., a **", round(totalTable[[paste0("percentage", col)]][indexRatio], digits = 1), "**% **more** individuals.", sep = "")
-          
-          
-        } else {
-          
-          percentageText <- paste(percentageText, "less individuals** with ", predictorValue, " values in the changed individuals, i.e., a **", abs(round(totalTable[[paste0("percentage", col)]][indexRatio], digits = 1)), "**% **less** individuals.", sep = "")
-          
-        }
-      
-      }
-    } else {
-      percentageText <- paste(percentageText, "All individuals belong to this value, therefore there is no ratio to calculate.", paste = "")
-    }
-
-  }
-    
-    totalTable[[paste0("text", col)]][indexRatio] <- text
-    totalTable[[paste0("percentageText", col)]][indexRatio] <- percentageText
-    
-  }
-}
-```
-
-### 9.1 Ratios between Control and Case patients before detection
-
-For **numerical** attributes, on the **right** we see those that show **higher mean values for controls than for cases**. Analogously on the left. 
-
-For **categorical** attributes, we see a blob for each possible category versus the rest. If the attribute is binary, only a blob is required. We see there the **ratio of members of one category and the rest**, for controls, **divided by the ratio of members of that category and the rest**, for cases.
-
-```{r, include = FALSE}
-plotCE <- plot_ly(totalTable, x=~logCE, y=reorder(rownames(totalTable), abs(totalTable$logCE)), type="scatter", mode = "markers", marker = list(size = 10, color = totalTable$ColorsCE), height = (nrow(totalTable) * 850) / 36, width = 1000, hoverinfo = "text", text =~textCE)
-
-title <- "Ratios between Control and Case patients before detection (genetic algorithm)"
-
-plotCE <- plotCE %>% layout(title = title,
-                        xaxis = list(title = "Ratio in logaritmic (base 2) scale <br>", tickvals = seq(-ceiling(-min(totalTable$logCE)), ceiling(max(totalTable$logCE)), by = sepCE)),
-                        yaxis = list(title = "Predictor"), hoverlabel = list(align = "left"))
-
-ceData <- totalTable[order(abs(totalTable$logCE), rownames(totalTable), decreasing = TRUE) ,]
-```
-
-```{r, echo = FALSE}
-plotCE
-```
-
-`r paste(ceData$percentageTextCE, collapse = "\n\n")`
-
-### 9.2 Evolution of the set of Control patients after detection
-
-For **numerical** attributes, on the **right** we see those that show **higher mean values for controls that became cases in comparison to controls that remained as controls**. Analogously on the left 
-
-For **categorical** attributes, we see a blob for each possible category versus the rest. If the attribute is binary, only a blob is required. We see there the **ratio of members of one category versus the rest**, for all individuals that changed from control to cases, **divided by the ratio of members of that category versus the rest**, that remained as controls.
-
-```{r, include = FALSE}
-plotCCCM <- plot_ly(totalTable, x=~logCCCM, y=reorder(rownames(totalTable), abs(totalTable$logCCCM)), type="scatter", mode = "markers", marker = list(size = 10, color = totalTable$ColorsCCCM ), height = (nrow(totalTable) * 850) / 36, width = 1000, hoverinfo = "text", text =~textCCCM)
-
-title <- "Control individuals that are moved to Cases"
-plotCCCM <- plotCCCM %>% layout(title = title,
-                        xaxis = list(title = "Ratio in logaritmic (base 2) scale <br>", tickvals = seq(-ceiling(-min(totalTable$logCCCM)), ceiling(max(totalTable$logCCCM)), by = sepCCCM)),
-                        yaxis = list(title = "Predictor"), hoverlabel = list(align = "left"))
-
-
-cccmData <- totalTable[order(abs(totalTable$logCCCM), rownames(totalTable), decreasing = TRUE) ,]
-```
-
-```{r, echo = FALSE}
-plotCCCM
-```
-
-`r paste(cccmData$percentageTextCCCM, collapse = "\n\n")`
-
-### 9.3 Evolution of the set of Case patients after detection
-
-For **numerical** attributes, on the **right** we see those that show **higher mean values for cases that became controls in comparison to cases that remained as cases**. Analogously on the left 
-
-For **categorical** attributes, we see a blob for each possible category versus the rest. If the attribute is binary, only a blob is required. We see there the **ratio of members of one category versus the rest**, for all individuals that changed from cases to controls, **divided by the ratio of members of that category versus the rest**, that remained as cases.
-
-```{r, include = FALSE}
-plotECEM <- plot_ly(totalTable, x=~logECEM, y=reorder(rownames(totalTable), abs(totalTable$logECEM)), type="scatter", mode = "markers", marker = list(size = 10, color = totalTable$ColorsECEM ), height = (nrow(totalTable) * 850) / 36, width = 1000, hoverinfo = "text", text =~textECEM)
-
-title <- "Case individuals that are moved to Controls"
-
-plotECEM <- plotECEM %>% layout(title = title,
-                        xaxis = list(title = "Ratio in logaritmic (base 2) scale <br>", tickvals = seq(-ceiling(-min(totalTable$logECEM)), ceiling(max(totalTable$logECEM)), by = sepECEM)),
-                        yaxis = list(title = "Predictor"), hoverlabel = list(align = "left"))
-
-ecemData <- totalTable[order(abs(totalTable$logECEM), rownames(totalTable), decreasing = TRUE) ,]
-```
-
-```{r, echo = FALSE}
-plotECEM
-```
-
-`r paste(ecemData$percentageTextECEM, collapse = "\n\n")`
-
-# 10 Stadistical Analysis
-
-For categorical variables, a generalized linear model (GLM) has been implemented to assess the association between the clinical predictor and the patient's change in status. For binary predictors, an Odds Ratio is calculated comparing the two possible predictor values with respect to the patient's change in status. For predictors with more than two values, a set of Odds Ratios is calculated, each comparing one predictor category to a reference category, in relation to the patient's change in status.
-
-For numerical variables, a Mann-Whitney test has been conducted to compare the distributions of values between patients who have remained in a certain state and those who have changed to the other state.
-
-## 10.1 Odds Ratios of patients' state changes from Controls to Cases  according to categorical predictors
-
-```{r, echo = FALSE}
-totalOddsControls <- params$totalOddsControls
-```
-
-
-```{r, echo = FALSE}
-for (row_name in rownames(totalOddsControls)) {
-  split_text <- strsplit(row_name, "/")[[1]]
-  split_despues_del_slash <- strsplit(split_text[2], " vs ")[[1]]
+  # 2. Crear las columnas clinicSupport y clinicSupportRatio
+  num_domain_features <- length(unique(domainTable$Feature))
   
-  new_column_text <- paste(
-    "Variable", split_text[1], "(categoric), values:", split_despues_del_slash[1], " and ", split_despues_del_slash[2], "<br>",
-    paste("OddRatio:", totalOddsControls[row_name, "OddRatio"], "<br>", sep = " "),
-    paste("LowerCI:", totalOddsControls[row_name, "LowerCI"], "<br>", sep = " "),
-    paste("UpperCI:", totalOddsControls[row_name, "UpperCI"], "<br>", sep = " "),
-    paste(split_despues_del_slash[1], " Control individuals changed:", totalOddsControls[row_name, "SUMCCFirst"], "<br>", sep = " "),
-    paste(split_despues_del_slash[2], " Control individuals changed:", totalOddsControls[row_name, "SUMCCSecond"], "<br>", sep = " "),
-    paste(split_despues_del_slash[1], " Control individuals unchanged:", totalOddsControls[row_name, "SUMCMFirst"], "<br>", sep = " "),
-    paste(split_despues_del_slash[2], " Control individuals unchanged:", totalOddsControls[row_name, "SUMCMSecond"], "<br>", sep = " ")
-  )
-  
-  totalOddsControls[row_name, "text"] <- new_column_text
-}
-```
-
-```{r, echo = FALSE}
-color_list <- ifelse(totalOddsControls$UpperCI < 1 | totalOddsControls$LowerCI > 1, "red", "blue")
-
-vline <- function(x = 1, color = "black") {
-  list(
-    type = "line", 
-    y0 = 0, 
-    y1 = 1, 
-    yref = "paper",
-    x0 = x, 
-    x1 = x, 
-    line = list(color = color, dash = "dash", width = 1, opacity = 0.5)
-  )
-}
-
-plotOdds <- plot_ly(
-  totalOddsControls,
-  x = ~OddRatio,
-  y = ~rownames(totalOddsControls),
-  type = 'scatter',
-  mode = 'markers',
-  marker = list(size = 10, color = color_list),
-  error_x = list(
-    type = 'data',
-    symmetric = FALSE,
-    array = ~UpperCI - OddRatio,
-    arrayminus = ~OddRatio - LowerCI,
-    color = 'black',
-    thickness = 1.5,
-    width = 5
-  ),
-  hoverinfo = 'text',
-  text = ~text,
-  height = length(rownames(totalOddsControls)) * 25,
-  width = 1000
-) %>% 
-layout(
-  title = "Odds Ratios of patients' state changes from Controls to Cases",
-  xaxis = list(type = "log"),
-  yaxis = list(title = "Predictor")
-) %>%
-  layout(shapes = list(vline(1)))
-```
-
-```{r, echo = FALSE}
-plotOdds
-```
-
-```{r, echo = FALSE, results='asis'}
-above_one <- totalOddsControls[totalOddsControls$LowerCI > 1 & totalOddsControls$UpperCI > 1, ]
-
-cat("**Odds Ratio greater than 1:** \n\n")
-
-if (nrow(above_one) > 0) {
-  comparisons <- strsplit(rownames(above_one), "/")  
-  translated_text <- lapply(comparisons, function(cmp) {
-    cmp_split <- strsplit(cmp[2], " vs ")[[1]]
-
-    paste("Predictor <b>", cmp[1], "</b> when comparing the default value <b>", cmp_split[1], "</b> and the value <b>", cmp_split[2], "</b> from <b>Controls to Cases</b>.")
-
+  clinic_ordered_mapped$clinicSupport <- apply(clinic_ordered_mapped, 1, function(row) {
+    sum(sapply(row, function(cell) {
+      sum(grepl("\\+", unlist(strsplit(as.character(cell), " "))))
+    }))
   })
-  cat(paste(translated_text, collapse = "<br>"), "<br>")
-}
-```
-
-```{r, echo = FALSE, results='asis'}
-under_one <- totalOddsControls[totalOddsControls$LowerCI < 1 & totalOddsControls$UpperCI < 1, ]
-
-cat("**Odds Ratio less than 1:** \n\n")
-
-if (nrow(under_one) > 0) {
-  comparisons <- strsplit(rownames(under_one), "/")  
-  translated_text <- lapply(comparisons, function(cmp) {
-    cmp_split <- strsplit(cmp[2], " vs ")[[1]]
-
-    paste("Predictor <b>", cmp[1], "</b> when comparing the default value <b>", cmp_split[1], "</b> and the value <b>", cmp_split[2], "</b> from  <b>Controls to Cases</b>.")
-
+  
+  clinic_ordered_mapped$clinicSupportRatio <- paste0(clinic_ordered_mapped$clinicSupport, " / ", num_domain_features)
+  
+  clinic_ordered_mapped$AgreeRNAClinic <- ifelse(clinic_ordered_mapped$clinicSupport > 0, "Yes", "No")
+  
+  # 4. Seleccionar las columnas en el orden deseado
+  domainTableFeatures <- unique(domainTable$Feature)
+  
+  clinicDomainTable <- clinic_ordered_mapped %>% dplyr::select(
+    clinicSupport, 
+    clinicSupportRatio, 
+    all_of(classVariable),
+    AgreeRNAClinic, 
+    all_of(idColumn), 
+    all_of(setdiff(names(clinic_ordered_mapped), c(idColumn, classVariable)))
+  )
+  
+  
+  get_thresholds <- function(feature, group_value, sign) {
+    thresholds <- domainTable %>%
+      filter(Feature == feature & Group == group_value & Sign == sign) %>%
+      dplyr::select(Value) %>%
+      pull()
+    return(as.character(thresholds))
+  }
+  
+  clinicDomainTable$PositiveColumns <- rep("", nrow(clinicDomainTable))
+  
+  clinicDomainTable$PositiveColumns <- apply(clinic_ordered_mapped, 1, function(row) {
+    group_value <- row[[classVariable]]
+  
+    round_value <- function(value) {
+      value_clean <- gsub(" [\\+\\-]", "", value)
+      value_num <- as.numeric(value_clean)
+      if (!is.na(value_num)) {
+        return(as.character(round(value_num, 3)))
+      } else {
+        return(value_clean)
+      }
+    }
+  
+    positive_feature_thresholds <- list()
+    negative_feature_thresholds <- list()
+  
+    for (feature in domainTableFeatures) {
+      cell <- as.character(row[[feature]])
+      value <- round_value(cell)
+  
+      if (grepl("\\+", cell)) {
+        thresholds <- get_thresholds(feature, group_value, "+")
+        if (feature %in% names(positive_feature_thresholds)) {
+          positive_feature_thresholds[[feature]]$thresholds <- unique(c(positive_feature_thresholds[[feature]]$thresholds, thresholds))
+        } else {
+          positive_feature_thresholds[[feature]] <- list(value = value, thresholds = thresholds)
+        }
+      }
+  
+      if (grepl("\\-", cell)) {
+        thresholds <- get_thresholds(feature, group_value, "+")
+        if (feature %in% names(negative_feature_thresholds)) {
+          negative_feature_thresholds[[feature]]$thresholds <- unique(c(negative_feature_thresholds[[feature]]$thresholds, thresholds))
+        } else {
+          negative_feature_thresholds[[feature]] <- list(value = value, thresholds = thresholds)
+        }
+      }
+    }
+  
+    # Construir las cadenas HTML
+    positive_vars <- sapply(names(positive_feature_thresholds), function(feature) {
+      value <- positive_feature_thresholds[[feature]]$value
+      thresholds <- positive_feature_thresholds[[feature]]$thresholds
+      thresholds_str <- paste(unique(thresholds), collapse = ",")
+      paste0(feature, ": ", value, " (", thresholds_str, ")<br>")
+    })
+  
+    negative_vars <- sapply(names(negative_feature_thresholds), function(feature) {
+      value <- negative_feature_thresholds[[feature]]$value
+      thresholds <- negative_feature_thresholds[[feature]]$thresholds
+      thresholds_str <- paste(unique(thresholds), collapse = ",")
+      paste0(feature, ": ", value, " (", thresholds_str, ")<br>")
+    })
+  
+    result <- paste(
+      if (length(positive_vars) > 0) {
+        paste("<b>Covariates that support the change:</b><br>", paste(positive_vars, collapse = ""))
+      } else {
+        NULL
+      },
+      if (length(negative_vars) > 0) {
+        paste("<b>Covariates that do not support the change:</b><br>", paste(negative_vars, collapse = ""))
+      } else {
+        NULL
+      },
+      sep = "<br><br>"
+    )
+  
+    # Asegurarse de que siempre se devuelva algo
+    if (length(result) == 0 || is.null(result) || result == "") {
+      return("")  # Devolver una cadena vacía si no hay resultado
+    } else {
+      return(result)
+    }
   })
-  cat(paste(translated_text, collapse = "<br>"), "<br>")
+
 }
 ```
 
-## 10.2 Odds Ratios of patients' state changes from Cases to Controls according to categorical predictors
+
+### 1. Global explainability {.tabset}
+
+For the categorical covariables the following tests have been performed:
+
+-   **Odds Ratio:** The test is considered significant if its confidence interval does not cross 1.
+
+-   **chi-square test:** The test is considered significant if it has a p-value less than 0.05.
+
+-   **fisher test:** The test is considered significant if it has a p-value less than 0.05.
+
+If one of the previous tests is significant it will be shown. Fisher test will be applied when there is any value less than 10 in the contingency table.
+
+For the numerical covariables the following tests have been performed:
+
+-   **Mann-Whitney test:** The test is considered significant if it has a p-value less than 0.05.
+
+#### 1.1. Control2Case global explainability {.tabset}
+
+Results of the significant tests obtained from analyzing controls that have been modified into cases compared to the rest of the controls.
+
+##### 1.1.1. Categorical predictors
 
 ```{r, echo = FALSE}
-totalOddsCases <- params$totalOddsCases
+totalOddsControls <- svmTotalOddsControls
+
+totalOddsControls <- totalOddsControls[!is.na(totalOddsControls$Fisher_chi.square), ]
+
+totalOddsControls <- totalOddsControls %>%
+  filter(as.numeric(Fisher_chi.square) < 0.05)
 ```
 
 
+
 ```{r, echo = FALSE}
-for (row_name in rownames(totalOddsCases)) {
-  split_text <- strsplit(row_name, "/")[[1]]
-  split_despues_del_slash <- strsplit(split_text[2], " vs ")[[1]]
+if(nrow(totalOddsControls) > 0){
   
-  new_column_text <- paste(
-    "Variable", split_text[1], "(categoric), values:", split_despues_del_slash[1], " and ", split_despues_del_slash[2], "<br>",
-    paste("OddRatio:", totalOddsCases[row_name, "OddRatio"], "<br>", sep = " "),
-    paste("LowerCI:", totalOddsCases[row_name, "LowerCI"], "<br>", sep = " "),
-    paste("UpperCI:", totalOddsCases[row_name, "UpperCI"], "<br>", sep = " "),
-    paste(split_despues_del_slash[1], " Cases individuals changed:", totalOddsCases[row_name, "SUMCCFirst"], "<br>", sep = " "),
-    paste(split_despues_del_slash[2], " Cases individuals changed:", totalOddsCases[row_name, "SUMCCSecond"], "<br>", sep = " "),
-    paste(split_despues_del_slash[1], " Cases individuals unchanged:", totalOddsCases[row_name, "SUMCMFirst"], "<br>", sep = " "),
-    paste(split_despues_del_slash[2], " Cases individuals unchanged:", totalOddsCases[row_name, "SUMCMSecond"], "<br>", sep = " ")
+  evaluate_condition <- function(value_expression, feature_value) {
+    value_expression <- trimws(value_expression)  # Eliminar espacios extra
+    return(value_expression == feature_value)
+  }
+  
+  # Renombrar las columnas en totalOddsControls
+  names(totalOddsControls)[names(totalOddsControls) == "SumCCFirst"] <- "Control2CaseValue"
+  names(totalOddsControls)[names(totalOddsControls) == "SumCCSecond"] <- "Control2CaseRest"
+  names(totalOddsControls)[names(totalOddsControls) == "SumCMFirst"] <- "ControlValue"
+  names(totalOddsControls)[names(totalOddsControls) == "SumCMSecond"] <- "ControlRest"
+  
+  totalOddsControls <- totalOddsControls %>%
+    rowwise() %>%
+    mutate(
+      OddRatio = round(OddRatio, 3),
+      Fisher_chi.square = formatC(Fisher_chi.square, format = "e", digits = 3),
+      # Buscar el valor de "RELATIVE_TO" en domainTable
+      RELATIVE_TO = case_when(
+        any(domainTable$Group == "Control2Case" &
+            domainTable$Feature == Feature &
+            sapply(domainTable$Value, evaluate_condition, FeatureValue) &
+            domainTable$Sign == "+") ~ "Case",
+        any(domainTable$Group == "Control2Case" &
+            domainTable$Feature == Feature &
+            sapply(domainTable$Value, evaluate_condition, FeatureValue) &
+            domainTable$Sign == "-") ~ "Control",
+        TRUE ~ "Indeterminated"
+      )
+    ) %>%
+    ungroup()
+  
+  # Reordenar las columnas para que "RELATIVE_TO" esté entre "FeatureValue" y "FeatureRestValues"
+  totalOddsControls <- totalOddsControls %>%
+    dplyr::select(OddRatio, Fisher_chi.square, Feature, FeatureValue, RELATIVE_TO, FeatureRestValues, 
+           Control2CaseValue, Control2CaseRest, ControlValue, ControlRest)
+}
+```
+
+```{r, echo = FALSE}
+if(nrow(totalOddsControls) > 0){
+
+  generate_html_text <- function(df) {
+    df %>%
+      rowwise() %>%
+      mutate(
+        description = paste0(
+          "<p><strong>Covariate:</strong> ", Feature, "</p>",
+          "<p>For the covariate <strong>", Feature, "</strong> we evaluated the change in AHC when the level of this covariate is <strong>", FeatureValue, 
+          "</strong> compared to the remaining levels (<strong>", FeatureRestValues, "</strong>). In this case, the <strong>OddRatio</strong> value is <strong>", OddRatio, 
+          ifelse(OddRatio < 1, 
+                 "</strong>, less than 1, suggesting that the probability of the event (AHC) is significantly lower in the group {", 
+                 "</strong>, greater than 1, indicating that the AHC event is more likely in the group {"), 
+          FeatureValue, "} compared to the group {", FeatureRestValues, "}.</p>"
+        ),
+
+        # Condición para validar coherencia con explicación detallada y caso "Indeterminated"
+        coherence_check = case_when(
+          OddRatio > 1 & RELATIVE_TO == "Case" ~ paste(
+            "The result is <strong>consistent</strong> with domain expert expectations because patients with ", Feature, " = ", FeatureValue, 
+            " are more likely to belong to the Case group while ", Feature, " ≠ ", FeatureValue, " are more likely to belong to the Control group."
+          ),
+          OddRatio < 1 & RELATIVE_TO == "Control" ~ paste(
+            "The result is <strong>consistent</strong> with domain expert expectations because patients with ", Feature, " = ", FeatureValue, 
+            " are more likely to belong to the Control group while ", Feature, " ≠ ", FeatureValue, " are more likely to belong to the Case group."
+          ),
+          RELATIVE_TO == "Indeterminated" ~ "The result cannot be evaluated for consistency because the RELATIVE_TO value is <strong>Indeterminated</strong>.",
+          TRUE ~ paste(
+            "The result is <strong>inconsistent</strong> with domain expert expectations. The OddRatio does not align with the expected relationship based on RELATIVE_TO. The OddRatio is",
+            OddRatio, "with RELATIVE_TO as", RELATIVE_TO, "."
+          )
+        )
+      ) %>%
+      mutate(
+        # Eliminar el salto de línea antes de la evaluación del p-valor
+        description = paste0(description, " ", coherence_check, 
+                             " This observation is supported by a p-value of <strong>", Fisher_chi.square, "</strong>.</p>")
+      ) %>%
+      pull(description) %>%
+      paste(collapse = "\n")
+  }
+
+  # Generate the HTML
+  html_text_control2case <- generate_html_text(totalOddsControls)
+
+} else {
+  html_text_control2case <- NULL
+}
+
+```
+
+`r html_text_control2case`
+
+```{r, echo = FALSE}
+DT::datatable(
+  totalOddsControls[2,] %>%
+    dplyr::rename(
+      "OR" = OddRatio,
+      "p-value" = Fisher_chi.square,
+      "Covariate" = Feature,
+      "Value" = FeatureValue,
+      "Relative to" = RELATIVE_TO,
+      "Other Values" = FeatureRestValues,
+      "AHC Value" = Control2CaseValue,
+      "AHC Other Value" = Control2CaseRest,
+      "HC Value" = ControlValue,
+      "HC Other Value" = ControlRest
+    ) %>%
+    dplyr::select(
+      "OR", "p-value", "Covariate", "Value", "Relative to", "Other Values",
+      "AHC Value", "HC Value",
+      "AHC Other Value", "HC Other Value"
+    ),
+  options = list(scrollX = TRUE),
+  rownames = FALSE
+)
+
+```
+
+##### 1.1.2. Numerical predictors
+
+```{r, echo = FALSE, warning=FALSE}
+totalWilcoxControls <- svmTotalWilcoxControls
+```
+
+```{r, echo = FALSE, warning=FALSE}
+# Getting wilcox controls for every feature excepting those with all NA in one of the groups
+totalWilcoxControls_test <- totalWilcoxControls %>%
+  group_by(predictor) %>%
+  mutate(
+    wilcox_pvalue = ifelse(
+      any(group == "Controls2Cases" & !is.na(value)) && any(group == "Controls" & !is.na(value)),
+      wilcox.test(value ~ group)$p.value,
+      NA
+    )
+  )
+
+# Removing predictors without wilcox test
+totalWilcoxControls_test <- totalWilcoxControls_test %>%
+  filter(!is.na(wilcox_pvalue))
+
+totalWilcoxControls_test <- totalWilcoxControls_test %>%
+  filter(wilcox_pvalue <= 0.05)
+
+# Ordering by wilcox test 
+totalWilcoxControls_test <- totalWilcoxControls_test %>%
+  arrange(wilcox_pvalue)
+```
+
+```{r, echo = FALSE}
+filtered_domain <- domainTable %>% 
+  filter(Group == "Case2Control" & Feature %in% totalWilcoxControls_test$predictor)
+
+# Creamos una función auxiliar para realizar el cambio de nombre en `predictor`
+update_predictor <- function(predictor_name) {
+  # Seleccionamos las filas de `filtered_domain` que coincidan con el `predictor`
+  matching_rows <- filtered_domain %>% filter(Feature == predictor_name)
+  
+  # Verificamos si hay alguna coincidencia en `domainTable`
+  if (nrow(matching_rows) > 0) {
+    # Seleccionamos la primera coincidencia con un ">" o ">="
+    row_with_sign <- matching_rows %>% filter(grepl("^>=", Value) | grepl("^>", Value))
+    
+    if (nrow(row_with_sign) > 0) {
+      # Asignamos el sufijo de acuerdo a "Sign"
+      if (row_with_sign$Sign[1] == "+") {
+        return(paste(predictor_name, "\n(Higher in controls)"))
+      } else if (row_with_sign$Sign[1] == "-") {
+        return(paste(predictor_name, "\n(Higher in cases)"))
+      }
+    }
+  }
+  
+  # Si no hay coincidencias o no cumple con los criterios, se asigna "Indeterminated"
+  return(paste(predictor_name, "(Indeterminated)"))
+}
+
+totalWilcoxControls_test <- totalWilcoxControls_test %>%
+  mutate(predictor = sapply(predictor, update_predictor))
+
+```
+
+
+```{r, echo = FALSE, warning=FALSE}
+predictors <- unique(totalWilcoxControls_test$predictor)
+
+cel <- ceiling(length(predictors) / 3)
+
+height <- cel * 6
+```
+
+```{r, echo = FALSE, warning=FALSE}
+if (nrow(totalWilcoxControls_test) > 0){
+  knitr::opts_chunk$set(fig.height = height)
+} else {
+  height = 1
+}
+```
+
+
+```{r, fig.width=10, fig.height=height, warning=FALSE, echo = FALSE}
+if (nrow(totalWilcoxControls_test) > 0){
+  totalWilcoxControls_test$predictor <- factor(totalWilcoxControls_test$predictor, levels = unique(totalWilcoxControls_test$predictor))
+  
+  p <- ggboxplot(totalWilcoxControls_test, x = "group", y = "value",
+                     color = "group", palette = "npg") + facet_wrap( ~ predictor, ncol = 3, scales = "free")
+  
+  my_comparisons <- list(c("Controls2Cases", "Controls"))
+  p <- p + stat_compare_means(method = "wilcox.test", comparisons = my_comparisons, size = 5)
+  
+  p <- p + stat_summary(fun = mean, 
+                        geom = "text", 
+                        aes(label = paste(round(..y.., 4))), 
+                        position = position_dodge(width = 0.50),
+                        vjust = -1, 
+                        size = 4,
+                        color = "black")
+  
+  p <- p + theme(axis.text.x = element_text(size = 10),
+                   strip.text.x = element_text(size = 8.5),
+                   axis.title.y = element_text(size = 10),
+                   strip.text = element_text(size = 10),
+                  plot.title = element_text(size = 7)
   )
   
-  totalOddsCases[row_name, "text"] <- new_column_text
+  p
+}
+```
+
+```{r}
+totalWilcoxControls_test <- totalWilcoxControls_test %>%
+  mutate(group = ifelse(group == "Controls2Cases", "AHC", group))
+
+totalWilcoxControls_test <- totalWilcoxControls_test %>%
+  mutate(group = ifelse(group == "Controls", "HC", group))
+
+totalWilcoxControls_test <- totalWilcoxControls_test %>%
+  mutate(predictor = recode(predictor,
+    "t_naive_cd4_cd8_t_memory_cd4 \n(Higher in controls)" = "CD4/CD8 naive T-cells\nand CD4 memory T-cells\n(Higher in HC)",
+    "mds_updrs_part_i_summary_score \n(Higher in cases)" = "MDS UPDRS Part I\n(Higher in PD)",
+    "neutrophils_mature \n(Higher in cases)" = "Mature Neutrophils\n(Higher in PD)",
+    "monocytes_progenitor \n(Higher in controls)" = "Progenitor Monocytes\n(Higher in HC)",
+    "mds_updrs_part_iii_summary_score \n(Higher in cases)" = "MDS UPDRS Part III\n(Higher in PD)"
+  ))
+
+```
+
+
+```{r, fig.width=11, fig.height=4, warning=FALSE, echo = FALSE}
+if (nrow(totalWilcoxControls_test) > 0) {
+
+  p <- ggboxplot(totalWilcoxControls_test, x = "group", y = "value",
+                 color = "group", palette = "npg") + 
+      facet_wrap(~ predictor, ncol = 5, scales = "free")
+
+  my_comparisons <- list(c("AHC", "HC"))
+
+  p <- p + stat_compare_means(method = "wilcox.test", 
+                              comparisons = my_comparisons, 
+                              label = "p.signif", 
+                              size = 5)
+
+  p <- p + stat_summary(fun = mean, 
+                        geom = "text", 
+                        aes(label = paste(round(..y.., 4))), 
+                        position = position_dodge(width = 0.50),
+                        vjust = -1, 
+                        size = 6, 
+                        color = "black")
+
+  p <- p + theme(axis.text.x = element_text(size = 20),
+                 strip.text.x = element_text(size = 22),
+                 axis.title.y = element_text(size = 22),
+                 axis.title.x = element_text(size = 22),
+                 legend.text = element_text(size = 15), 
+                 legend.title = element_text(size = 15) 
+  )
+  
+  p
+}
+
+```
+
+
+
+The following table shows the clinical information of Control2Case patients.
+
+```{r, echo = FALSE}
+if (nrow(totalWilcoxControls_test) > 0) {
+  clinicDomainTableControl2Case <- clinicDomainTable[clinicDomainTable[[classVariable]] == "Control2Case", ]
+  
+  datatable(
+    clinicDomainTableControl2Case,
+    class = 'cell-border stripe',
+    options = list(
+      scrollX = TRUE,
+      columnDefs = list(
+        list(visible = FALSE, targets = "PositiveColumns")
+      ),
+      rowCallback = JS(
+        "function(row, data) {
+          var positiveColumns = data[data.length - 1];
+          $(row).on('click', function() {
+            if (positiveColumns) {
+              $('#modalContent').html('<h3>Covariates Details</h3>' + positiveColumns);  // Set the content with HTML formatting
+              $('#customModal').show();  // Display the modal
+            }
+          });
+        }"
+      )
+    ),
+    escape = FALSE
+  )
+}
+
+
+```
+
+
+
+```{r, echo = FALSE}
+if (nrow(totalWilcoxControls_test) > 0) {
+  control2case_num_features <- unique(totalWilcoxControls_test$predictor)
+  
+  for(feature in control2case_num_features){
+    
+    clinic_ordered_mapped[[paste0(feature, "_test")]] <- ifelse(clinic_ordered[[classVariable]] == "Control2Case", 1, 0)
+  
+  }
+}
+```
+
+
+#### 1.2. Case2Control global explainability {.tabset}
+
+Results of the significant tests obtained from analyzing cases that have been modified into controls compared to the rest of the cases.
+
+##### 1.2.1. Categorical predictors
+
+```{r, echo = FALSE}
+totalOddsCases <- svmTotalOddsCases
+
+totalOddsCases <- totalOddsCases[!is.na(totalOddsCases$Fisher_chi.square), ]
+
+totalOddsCases <- totalOddsCases %>%
+  filter(as.numeric(Fisher_chi.square) < 0.05)
+```
+
+```{r, echo = FALSE}
+if(nrow(totalOddsCases) > 0){
+  
+# Renombrar las columnas en totalOddsCases
+names(totalOddsCases)[names(totalOddsCases) == "SumCCFirst"] <- "Case2ControlValue"
+names(totalOddsCases)[names(totalOddsCases) == "SumCCSecond"] <- "Case2ControlRest"
+names(totalOddsCases)[names(totalOddsCases) == "SumCMFirst"] <- "CaseValue"
+names(totalOddsCases)[names(totalOddsCases) == "SumCMSecond"] <- "CaseRest"
+
+# Añadir la columna "RELATIVE_TO" al dataframe totalOddsControls usando domainTable
+totalOddsCases <- totalOddsCases %>%
+  rowwise() %>%
+  mutate(
+    OddRatio = round(OddRatio, 3),
+    Fisher_chi.square = formatC(Fisher_chi.square, format = "e", digits = 3),
+    # Buscar el valor de "RELATIVE_TO" en domainTable
+    RELATIVE_TO = case_when(
+      any(domainTable$Group == "Case2Control" & 
+          domainTable$Feature == Feature & 
+          domainTable$Value == FeatureValue & 
+          domainTable$Sign == "+") ~ "Control",
+      any(domainTable$Group == "Case2Control" & 
+          domainTable$Feature == Feature & 
+          domainTable$Value == FeatureValue & 
+          domainTable$Sign == "-") ~ "Case",
+      TRUE ~ "Indeterminated"
+    )
+  ) %>%
+  ungroup()  # Deshacemos el agrupamiento al final para evitar problemas en operaciones posteriores
+
+# Reordenar las columnas para que "RELATIVE_TO" esté entre "FeatureValue" y "FeatureRestValues"
+totalOddsCases <- totalOddsCases %>%
+  dplyr::select(OddRatio, Fisher_chi.square, Feature, FeatureValue, RELATIVE_TO, FeatureRestValues, 
+         Case2ControlValue, Case2ControlRest, CaseValue, CaseRest)
+
 }
 ```
 
 ```{r, echo = FALSE}
-color_list <- ifelse(totalOddsCases$UpperCI < 1 | totalOddsCases$LowerCI > 1, "red", "blue")
+if(nrow(totalOddsCases) > 0){
 
-vline <- function(x = 1, color = "black") {
-  list(
-    type = "line", 
-    y0 = 0, 
-    y1 = 1, 
-    yref = "paper",
-    x0 = x, 
-    x1 = x, 
-    line = list(color = color, dash = "dash", width = 1, opacity = 0.5)
-  )
+  generate_html_text <- function(df) {
+    df %>%
+      rowwise() %>%
+      mutate(
+        description = paste0(
+          "<p><strong>Covariate:</strong> ", Feature, "</p>",
+          "<p>For the covariate <strong>", Feature, "</strong> we evaluated the change in Case2Control when the value of this covariate is <strong>", FeatureValue, 
+          "</strong> compared to the remaining values (<strong>", FeatureRestValues, "</strong>). In this case, the <strong>OddRatio</strong> value is <strong>", OddRatio, 
+          ifelse(OddRatio < 1, 
+                 "</strong>, less than 1, suggesting that the probability of the event (Case2Control) is significantly lower in the group {", 
+                 "</strong>, greater than 1, indicating that the Case2Control event is more likely in the group {"), 
+          FeatureValue, "} compared to the group {", FeatureRestValues, "}.<br>",
+          "This observation is supported by a p-value of <strong>", Fisher_chi.square, "</strong>.<br>",
+          "The value <strong>", FeatureValue, "</strong> is relative to <strong>", RELATIVE_TO, "</strong>.</p>"
+        )
+      ) %>%
+      pull(description) %>%
+      paste(collapse = "\n")
+  }
+  
+  # Generate the HTML
+  html_text_case2control <- generate_html_text(totalOddsCases)
+
+} else {
+  html_text_case2control <- ""
 }
+```
 
-plotOdds <- plot_ly(
+`r html_text_case2control`
+
+```{r, echo = FALSE}
+DT::datatable(
   totalOddsCases,
-  x = ~OddRatio,
-  y = ~rownames(totalOddsCases),
-  type = 'scatter',
-  mode = 'markers',
-  marker = list(size = 10, color = color_list),
-  error_x = list(
-    type = 'data',
-    symmetric = FALSE,
-    array = ~UpperCI - OddRatio,
-    arrayminus = ~OddRatio - LowerCI,
-    color = 'black',
-    thickness = 1.5,
-    width = 5
-  ),
-  hoverinfo = 'text',
-  text = ~text,
-  height = length(rownames(totalOddsCases)) * 25,
-  width = 1000
-) %>% 
-layout(
-  title = "Odds Ratios of patients' state changes from Cases to Controls",
-  xaxis = list(type = "log"),
-  yaxis = list(title = "Predictor")
+  options = list(scrollX = TRUE),
+  rownames = FALSE
+)
+
+```
+
+##### 1.2.2. Numerical predictors
+
+```{r, echo = FALSE, warning=FALSE}
+totalWilcoxCases <- svmTotalWilcoxCases
+```
+
+```{r, echo = FALSE, warning=FALSE}
+# Getting wilcox controls for every feature excepting those with all NA in one of the groups
+totalWilcoxCases_test <- totalWilcoxCases %>%
+  group_by(predictor) %>%
+  mutate(
+    wilcox_pvalue = ifelse(
+      any(group == "Cases2Controls" & !is.na(value)) && any(group == "Cases" & !is.na(value)),
+      wilcox.test(value ~ group)$p.value,
+      NA
+    )
+  )
+
+# Removing predictors without wilcox test
+totalWilcoxCases_test <- totalWilcoxCases_test %>%
+  filter(!is.na(wilcox_pvalue))
+
+totalWilcoxCases_test <- totalWilcoxCases_test %>%
+  filter(wilcox_pvalue <= 0.05)
+
+# Ordering by wilcox test 
+totalWilcoxCases_test <- totalWilcoxCases_test %>%
+  arrange(wilcox_pvalue)
+```
+
+```{r, echo = FALSE}
+filtered_domain <- domainTable %>% 
+  filter(Group == "Control2Case" & Feature %in% totalWilcoxCases_test$predictor)
+
+# Creamos una función auxiliar para realizar el cambio de nombre en `predictor`
+update_predictor <- function(predictor_name) {
+  # Seleccionamos las filas de `filtered_domain` que coincidan con el `predictor`
+  matching_rows <- filtered_domain %>% filter(Feature == predictor_name)
+  
+  # Verificamos si hay alguna coincidencia en `domainTable`
+  if (nrow(matching_rows) > 0) {
+    # Seleccionamos la primera coincidencia con un ">" o ">="
+    row_with_sign <- matching_rows %>% filter(grepl("^>=", Value) | grepl("^>", Value))
+    
+    if (nrow(row_with_sign) > 0) {
+      # Asignamos el sufijo de acuerdo a "Sign"
+      if (row_with_sign$Sign[1] == "+") {
+        return(paste(predictor_name, "(Higher in cases)"))
+      } else if (row_with_sign$Sign[1] == "-") {
+        return(paste(predictor_name, "(Higher in controls)"))
+      }
+    }
+  }
+  
+  # Si no hay coincidencias o no cumple con los criterios, se asigna "Indeterminated"
+  return(paste(predictor_name, "(Indeterminated)"))
+}
+
+totalWilcoxCases_test <- totalWilcoxCases_test %>%
+  mutate(predictor = sapply(predictor, update_predictor))
+
+```
+
+
+```{r, echo = FALSE, warning=FALSE}
+predictors <- unique(totalWilcoxCases_test$predictor)
+
+cel <- ceiling(length(predictors) / 3)
+
+height <- cel * 6
+```
+
+```{r, echo = FALSE, warning=FALSE}
+if (nrow(totalWilcoxCases_test) > 0){
+  knitr::opts_chunk$set(fig.height = height)
+} else {
+  height = 1
+}
+```
+
+```{r, fig.width=10, fig.height=height, warning=FALSE, echo = FALSE}
+if (nrow(totalWilcoxCases_test) > 0){
+  totalWilcoxCases_test$predictor <- factor(totalWilcoxCases_test$predictor, levels = unique(totalWilcoxCases_test$predictor))
+  
+  p <- ggboxplot(totalWilcoxCases_test, x = "group", y = "value",
+                     color = "group", palette = "npg") + facet_wrap( ~ predictor, ncol = 3, scales = "free")
+  
+  my_comparisons <- list(c("Cases2Controls", "Cases"))
+  p <- p + stat_compare_means(method = "wilcox.test", comparisons = my_comparisons, size = 5)
+  
+  p <- p + stat_summary(fun = mean, 
+                        geom = "text", 
+                        aes(label = paste(round(..y.., 4))), 
+                        position = position_dodge(width = 0.50),
+                        vjust = -1, 
+                        size = 4,
+                        color = "black")
+  
+  p <- p + theme(axis.text.x = element_text(size = 10),
+                   strip.text.x = element_text(size = 8.5),
+                   axis.title.y = element_text(size = 10),
+                   strip.text = element_text(size = 10),
+                 plot.title = element_text(size = 7)
+  )
+  
+  p
+}
+```
+
+The following table shows the clinical information of Case2Control patients.
+
+```{r, echo = FALSE}
+if (nrow(totalWilcoxCases_test) > 0) {
+  clinicDomainTableCase2Control<- clinicDomainTable[clinicDomainTable[[classVariable]] == "Case2Control", ]
+  
+  datatable(
+    clinicDomainTableCase2Control,
+    class = 'cell-border stripe',
+    options = list(
+      scrollX = TRUE,
+      columnDefs = list(
+        list(visible = FALSE, targets = "PositiveColumns")
+      ),
+      rowCallback = JS(
+        "function(row, data) {
+          var positiveColumns = data[data.length - 1];
+          $(row).on('click', function() {
+            if (positiveColumns) {
+              $('#modalContent').html('<h3>Covariates Details</h3>' + positiveColumns);  // Set the content with HTML formatting
+              $('#customModal').show();  // Display the modal
+            }
+          });
+        }"
+      )
+    ),
+    escape = FALSE
+  )
+}
+
+```
+
+```{r, echo = FALSE}
+if (nrow(totalWilcoxCases_test) > 0) {
+  case2Control_num_features <- unique(totalWilcoxCases_test$predictor)
+  
+  for(feature in case2Control_num_features){
+    
+    clinic_ordered_mapped[[paste0(feature, "_test")]] <- ifelse(clinic_ordered[[classVariable]] == "Case2Control", 1, 0)
+    
+  }
+}
+```
+
+```{r, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(fig.height = 7)
+```
+
+### 2. Local explainability
+
+In the following plot all the misclassified samples are presented. The graph is divided at the point corresponding to the most outlier patients which in this case represent **`r percentage`%** of the total number of patients.
+
+```{r, echo = FALSE}
+# # Paso 1: Calcular la posición x correspondiente al 5% del número de filas
+# N <- nrow(clinicDataSVM)
+# x_pos_num <- round(0.05 * N)  # Añadimos 1 para alinearnos con la indexación de Plotly
+# 
+# df <- svmData$selected_samples
+# 
+# df_sorted <- df[order(df$Distance, decreasing = TRUE), ]
+
+# Paso 2: Crear el gráfico de barras con Plotly y añadir la línea vertical
+fig <- plot_ly(
+  data = df_sorted,
+  x = ~factor(index, levels = index),  # Asegura que el orden se preserve
+  y = ~distance,
+  type = 'bar'
 ) %>%
-  layout(shapes = list(vline(1)))
+  layout(
+    title = 'Misclassified samples by the SVM method',
+    xaxis = list(title = 'Index', tickangle = -45),
+    yaxis = list(title = 'Distance to the hyperplane'),
+    margin = list(b = 100),
+    shapes = list(
+      list(
+        type = "line",
+        x0 = x_pos_num,
+        x1 = x_pos_num,
+        y0 = 0,
+        y1 = 1,
+        xref = "x",
+        yref = "paper",
+        line = list(color = "black", dash = "dash", width = 2)
+      )
+    )
+  )
+
+# Mostrar el gráfico
+fig
 ```
 
-```{r, echo = FALSE}
-plotOdds
+In the following table the covariables of the most outlier patients (those who are on the left in the previous graph) are presented.
+
+```{r, echo = FALSE, warning = FALSE}
+# clinic_ordered <- clinicDataSVM[df_sorted[1:x_pos_num,]$Index, ]
+ 
+nameDir <- paste(absolutePath, savingName, "data", sep = "/")
+dir.create(nameDir)
+
+namePath <- paste(nameDir, paste(savingName, "_modified_patients.rds", sep = ""), sep = "/")
+   
+# if (omic == ""){
+  
+  # DT::datatable(clinic_ordered, class = 'cell-border stripe', options = list(scrollX = TRUE))
+
+  #saveRDS(clinic_ordered, namePath)
+
+  # clinic_ordered_mapped <- clinic_ordered
+# }
 ```
 
-```{r, echo = FALSE, results='asis'}
-above_one <- totalOddsCases[totalOddsCases$LowerCI > 1 & totalOddsCases$UpperCI > 1, ]
-
-cat("**Odds Ratio greater than 1:** \n\n")
-
-if (nrow(above_one) > 0) {
-  comparisons <- strsplit(rownames(above_one), "/")  
-  translated_text <- lapply(comparisons, function(cmp) {
-    cmp_split <- strsplit(cmp[2], " vs ")[[1]]
-    
-    # Format in bold using ANSI escape sequences for console output
-    paste("Predictor <b>", cmp[1], "</b> when comparing the default value <b>", cmp_split[1], "</b> and the value <b>", cmp_split[2], "</b> from  <b>Cases to Controls</b>.")
-
-  })
-  cat(paste(translated_text, collapse = "<br>"), "<br>")
-}
+```{r, echo = FALSE, warning = FALSE}
+# map_values_with_domain_table <- function(df, domain_table, class_variable) {
+#   # Crear una copia del dataframe para modificaciones
+#   df_mapped <- df
+#   
+#   # Iterar sobre las filas de domain_table
+#   for (i in seq_len(nrow(domain_table))) {
+#     
+#     row <- domain_table[i, ]
+#     feature <- as.character(row$Feature)
+#     value_condition <- as.character(row$Value)
+#     sign <- as.character(row$Sign)
+#     group <- as.character(row$Group)
+#     
+#     # Seleccionar el subconjunto según el grupo
+#     subset_condition <- df[[classVariable]] == group
+#     
+#     # Determinar si `value_condition` es una condición lógica o un valor específico
+#     if (grepl("^==", value_condition)) {
+#       # Condición específica de igualdad (== algo)
+#       target_value <- as.numeric(sub("==", "", value_condition))
+#       condition_met <- df[[feature]] == target_value
+#     } else if (grepl("^[><=]", value_condition)) {
+#       # Otras condiciones lógicas que requieren eval(parse(...))
+#       condition_met <- with(df, eval(parse(text = paste0(feature, " ", value_condition))))
+#     } else {
+#       # Valor específico sin condición, comparamos directamente
+#       condition_met <- df[[feature]] == value_condition
+#     }
+#     
+#     df_mapped[[feature]] <- ifelse(
+#       subset_condition & condition_met,
+#       paste0(df[[feature]], " ", sign),
+#       df_mapped[[feature]]
+#     )
+#   }
+#   
+#   return(df_mapped)
+# }
+# 
+# # Aplicar la función a clinic_ordered
+# clinic_ordered_mapped <- map_values_with_domain_table(clinic_ordered, domainTable, "Group")
+# 
+# # 2. Crear las columnas clinicSupport y clinicSupportRatio
+# num_domain_features <- length(unique(domainTable$Feature))
+# 
+# clinic_ordered_mapped$clinicSupport <- apply(clinic_ordered_mapped, 1, function(row) {
+#   sum(sapply(row, function(cell) {
+#     sum(grepl("\\+", unlist(strsplit(as.character(cell), " "))))
+#   }))
+# })
+# 
+# clinic_ordered_mapped$clinicSupportRatio <- paste0(clinic_ordered_mapped$clinicSupport, " / ", num_domain_features)
+# 
+# clinic_ordered_mapped$AgreeRNAClinic <- ifelse(clinic_ordered_mapped$clinicSupport > 0, "Yes", "No")
+# 
+# # 4. Seleccionar las columnas en el orden deseado
+# domainTableFeatures <- unique(domainTable$Feature)
+# 
+# clinicDomainTable <- clinic_ordered_mapped %>% dplyr::select(
+#   clinicSupport, 
+#   clinicSupportRatio, 
+#   all_of(classVariable),
+#   AgreeRNAClinic, 
+#   all_of(idColumn), 
+#   all_of(setdiff(names(clinic_ordered_mapped), c(idColumn, classVariable)))
+# )
+# 
+# 
+# get_threshold <- function(feature, group_value, sign) {
+#   threshold <- domainTable %>%
+#     filter(Feature == feature & Group == group_value & Sign == sign) %>%
+#     dplyr::select(Value) %>%
+#     pull()
+#   return(as.character(threshold))
+# }
+# 
+# clinicDomainTable$PositiveColumns <- apply(clinic_ordered_mapped, 1, function(row) {
+#   group_value <- row[[classVariable]]  # Obtener el valor de la variable de clase para la fila actual
+# 
+#   # Función para redondear el valor a 3 decimales
+#   round_value <- function(value) {
+#     # Remover el signo y espacios del valor
+#     value_clean <- gsub(" [\\+\\-]", "", value)
+#     value_num <- as.numeric(value_clean)
+#     if (!is.na(value_num)) {
+#       return(as.character(round(value_num, 3)))
+#     } else {
+#       return(value_clean)
+#     }
+#   }
+# 
+#   # Variables con "+"
+#   positive_vars <- Filter(Negate(is.null), sapply(domainTableFeatures, function(feature) {
+#     cell <- as.character(row[[feature]])
+#     if (grepl("\\+", cell)) {
+#       threshold <- get_threshold(feature, group_value, "+")  # Filtrar por signo "+"
+#       value <- round_value(cell)  # Redondear el valor a 3 decimales
+#       paste(feature, ":", value, "(", threshold, ")")
+#     } else {
+#       NULL
+#     }
+#   }))
+# 
+#   # Variables con "-"
+#   negative_vars <- Filter(Negate(is.null), sapply(domainTableFeatures, function(feature) {
+#     cell <- as.character(row[[feature]])
+#     if (grepl("\\-", cell)) {
+#       threshold <- get_threshold(feature, group_value, "-")  # Filtrar por signo "-"
+#       value <- round_value(cell)  # Redondear el valor a 3 decimales
+#       paste(feature, ":", value, "(", threshold, ")")
+#     } else {
+#       NULL
+#     }
+#   }))
+# 
+#   # Combinar las variables en el orden deseado
+#   paste(
+#     if (length(positive_vars) > 0) {
+#       paste("Covariates that support change:", paste(positive_vars, collapse = "\n"), sep = "\n")
+#     } else {
+#       NULL
+#     },
+#     if (length(negative_vars) > 0) {
+#       paste("Covariates that do not support change:", paste(negative_vars, collapse = "\n"), sep = "\n")
+#     } else {
+#       NULL
+#     },
+#     sep = "\n\n"
+#   )
+# })
+# 
+# datatable(
+#   clinicDomainTable %>% dplyr::select(
+#     clinicSupport, clinicSupportRatio, AgreeRNAClinic,
+#     all_of(classVariable), all_of(idColumn),
+#     all_of(domainTableFeatures), PositiveColumns
+#   ),
+#   class = 'cell-border stripe',
+#   options = list(
+#     scrollX = TRUE,
+#     columnDefs = list(
+#       list(visible = FALSE, targets = "PositiveColumns")  # Ocultar la columna PositiveColumns
+#     ),
+#     rowCallback = JS(
+#       "function(row, data) {
+#         var positiveColumns = data[data.length - 1]; // Acceso a la última columna
+#         $(row).on('click', function() {
+#           if (positiveColumns) {
+#             alert(positiveColumns);
+#           }
+#         });
+#       }"
+#     )
+#   ),
+#   escape = FALSE
+# )
 ```
 
-```{r, echo = FALSE, results='asis'}
-under_one <- totalOddsCases[totalOddsCases$LowerCI < 1 & totalOddsCases$UpperCI < 1, ]
 
-cat("**Odds Ratio less than 1:** \n\n")
+<!-- <!-- Modal Personalizado --> -->
+<!-- <div id="customModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); width:50%; max-height:80%; padding:20px; background:white; border:1px solid #ccc; z-index:10000;"> -->
+<!--   <div id="modalContent" style="max-height:60vh; overflow-y:auto;"></div> -->
+<!--   <button onclick="$('#customModal').hide()">Cerrar</button> -->
+<!-- </div> -->
 
-if (nrow(under_one) > 0) {
-  comparisons <- strsplit(rownames(under_one), "/")  
-  translated_text <- lapply(comparisons, function(cmp) {
-    cmp_split <- strsplit(cmp[2], " vs ")[[1]]
 
-    # Format in bold using ANSI escape sequences for console output
-    paste("Predictor <b>", cmp[1], "</b> when comparing the default value <b>", cmp_split[1], "</b> and the value <b>", cmp_split[2], "</b> from  <b>Cases to Controls</b>.")
+```{r, echo = FALSE, warning = FALSE}
+#tags$head(
+#  tags$style(HTML("
+#    #customModal {
+#      display: none; /* Default to hidden */
+#      position: fixed;
+#      z-index: 1000;
+#      left: 50%;
+#      top: 50%;
+#      transform: translate(-50%, -50%);
+#      background-color: white;
+#      border: 1px solid #ccc;
+#      padding: 20px;
+#      height: 400px; /* Set desired height */
+#      overflow-y: auto; /* Add scrolling if content overflows */
+#      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+#    }
+    #modalContent {
+#      max-height: calc(100% - 40px); /* Ensure content stays within modal */
+#      overflow-y: auto;
+#    }
+#  "))
+#)
 
-  })
-  cat(paste(translated_text, collapse = "<br>"), "<br>")
-}
 ```
 
-## 10.3 Test Mann-Whitney of patients' state changes from Controls to Cases according to numerical predictors
+```{r}
+clinicDomainTable <- clinicDomainTable %>%
+  mutate(diagnosis_type = ifelse(diagnosis_type == "Control2Case", "AHC", diagnosis_type))
 
-```{r, echo = FALSE}
-totalWilcoxControls <- params$totalWilcoxControls
+
 ```
 
 
-```{r, echo = FALSE}
-predictors <- unique(totalWilcoxControls$predictor)
-
-cel <- ceiling(length(predictors) / 3)
-
-height <- cel * 5
-```
-
-```{r, echo = FALSE}
-knitr::opts_chunk$set(fig.height = height)
-```
-
-
-```{r, fig.width=10, warning=FALSE, echo = FALSE}
-p <- ggboxplot(totalWilcoxControls, x = "group", y = "value",
-                   color = "group", palette = "npg") + facet_wrap( ~ predictor, ncol = 3, scales = "free")
-
-my_comparisons <- list(c("Changed", "Maintained"))
-p <- p + stat_compare_means(method = "wilcox.test", comparisons = my_comparisons, size = 5)
-
-p <- p + theme(axis.text.x = element_text(size = 10),
-                 strip.text.x = element_text(size = 8.5),
-                 axis.title.y = element_text(size = 10),
-                 strip.text = element_text(size = 10)
+```{r, echo = FALSE, warning = FALSE}
+# Después de "clinicSupportRatio" tenía puesto "AgreeRNAClinic"
+datatable(
+  clinicDomainTable[26, ] %>% dplyr::select(
+    clinicSupport, clinicSupportRatio,
+    all_of(classVariable), all_of(idColumn),
+    all_of(domainTableFeatures), PositiveColumns
+  ),
+  class = 'cell-border stripe',
+  options = list(
+    scrollX = TRUE,
+    columnDefs = list(
+      list(visible = FALSE, targets = "PositiveColumns")
+    ),
+    rowCallback = JS(
+      "function(row, data) {
+        var positiveColumns = data[data.length - 1];
+        $(row).on('click', function() {
+          if (positiveColumns) {
+            $('#modalContent').html('<h3>Covariates Details</h3>' + positiveColumns);  // Set the content with HTML formatting
+            $('#customModal').show();  // Display the modal
+          }
+        });
+      }"
+    )
+  ),
+  escape = FALSE
 )
 
-p
+
 ```
 
-```{r, echo = FALSE, warning=FALSE}
-comparisons_data <- ggplot_build(p)$data[[2]]
+```{r}
+# Carga de la librería DT
+library(DT)
 
-valor_panel <- comparisons_data$PANEL[as.numeric(comparisons_data$annotation) < 0.05]
+# Filtrar la fila 26 del dataframe
+filtered_row <- clinicDomainTable[26, ]
 
-valor_panel <- unique(valor_panel)
+# Excluir las columnas "AgreeRNAClinic" y "participant_id"
+filtered_row <- filtered_row[, !(names(filtered_row) %in% c("AgreeRNAClinic", "participant_id"))]
 
-valores_predictores <- sort(unique(totalWilcoxControls$predictor))
+# Seleccionar las primeras 10 columnas
+filtered_row <- filtered_row[, 1:10]
 
-valores_seleccionados <- valores_predictores[valor_panel]
-
-wilcoxdf <- data.frame(y = valores_seleccionados)
-```
-
-```{r, echo = FALSE, results='asis', warning=FALSE}
-cat("**Test Mann-Whitney less than 0.05:** \n\n")
-
-if (nrow(wilcoxdf) > 0) {
-  translated_text <- lapply(wilcoxdf$y, function(text) {
-    
-    # Format in bold using ANSI escape sequences for console output
-    paste("Predictor <b>", text, "</b> from <b>Controls to Cases</b>.")
-    
-  })
-  cat(paste(translated_text, collapse = "<br>"), "<br>")
-}
-```
-
-## 10.4 Test Mann-Whitney of patients' state changes from Cases to Controls according to numerical predictors
-
-```{r, echo = FALSE}
-totalWilcoxCases <- params$totalWilcoxCases
-```
+# Redondear el valor de "B Cells Naive" a 3 decimales
+filtered_row$b_cells_naive <- "0.087 +"
 
 
-```{r, echo = FALSE}
-predictors <- unique(totalWilcoxCases$predictor)
-
-cel <- ceiling(length(predictors) / 3)
-
-height <- cel * 5
-```
-
-```{r, echo = FALSE}
-knitr::opts_chunk$set(fig.height = height)
-```
-
-```{r, fig.width=10, warning=FALSE, echo = FALSE}
-p <- ggboxplot(totalWilcoxCases, x = "group", y = "value",
-                   color = "group", palette = "npg") + facet_wrap( ~ predictor, ncol = 3, scales = "free")
-
-my_comparisons <- list(c("Changed", "Maintained"))
-p <- p + stat_compare_means(method = "wilcox.test", comparisons = my_comparisons, size = 5)
-
-p <- p + theme(axis.text.x = element_text(size = 10),
-                 strip.text.x = element_text(size = 8.5),
-                 axis.title.y = element_text(size = 10),
-                 strip.text = element_text(size = 10)
+# Cambiar los nombres de las columnas
+colnames(filtered_row) <- c(
+  "Clinic Supports",
+  "Clinic Supports Ratio",
+  "Diagnosis",
+  "Sex",
+  "Ethnicity",
+  "Race",
+  "RIN Value",
+  "Age At Baseline",
+  "Mutation",
+  "B Cells Naive"
 )
 
-p
+# Cambiar los valores de "Diagnosis Type" de "Control2Case" a "AHC"
+filtered_row$`Diagnosis`[filtered_row$`Diagnosis` == "Control2Case"] <- "AHC"
+
+# Mostrar el datatable actualizado
+datatable(filtered_row)
+
+
+
+
 ```
 
-```{r, echo = FALSE, warning=FALSE}
-comparisons_data <- ggplot_build(p)$data[[2]]
-
-valor_panel <- comparisons_data$PANEL[as.numeric(comparisons_data$annotation) < 0.05]
-
-valor_panel <- unique(valor_panel)
-
-valores_predictores <- sort(unique(totalWilcoxCases$predictor))
-
-valores_seleccionados <- valores_predictores[valor_panel]
-
-wilcoxdf <- data.frame(y = valores_seleccionados)
-```
-
-```{r, echo = FALSE, results='asis', warning=FALSE}
-cat("**Test Mann-Whitney less than 0.05:** \n\n")
-
-if (nrow(wilcoxdf) > 0) {
-  translated_text <- lapply(wilcoxdf$y, function(text) {
-    
-    paste("Predictor <b>", text, "</b> from <b>Cases to Controls</b>.")
-    
-  })
-  cat(paste(translated_text, collapse = "<br>"), "<br>")
-}
-```
