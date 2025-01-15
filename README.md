@@ -24,7 +24,7 @@ Therefore, the first step will be to check that both datasets are composed of th
 
 After this, it is necessary to make sure that clinical data are not present in the omics dataset, thus avoiding the influence of such data in the detection of the anomalous cases. 
 
-### Step 2. Detection of anomalous PD and HC
+### Step 2. Detection of anomalous samples
 
 The detection of anomalous samples is based on Support Vector Machines (SVM) (Cortes and Vapnik, 1995).
 
