@@ -167,6 +167,9 @@ mlasdo_train_svm_models <- function(omic_data,
     }
   }
 
+
+  library(kernlab)
+  
   kernel_results <- list()
   for (kernel_name in names(kernel_configs)) {
     cfg <- kernel_configs[[kernel_name]]

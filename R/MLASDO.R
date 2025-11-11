@@ -342,9 +342,25 @@ run_mlasdo <- function(
         negative_class = resolved_negative
       )
       if (!is.null(anomalies_result) && !is.null(anomalies_result$anomalies)) {
+        counts_df <- anomalies_result$counts
+        pos_label <- anomalies_result$positive_class %||% resolved_positive %||% "Positive"
+        neg_label <- anomalies_result$negative_class %||% resolved_negative %||% "Negative"
+        pos_count <- if (!is.null(counts_df) && pos_label %in% counts_df$diagnosis_true) {
+          counts_df$anomalous[counts_df$diagnosis_true == pos_label]
+        } else {
+          0L
+        }
+        neg_count <- if (!is.null(counts_df) && neg_label %in% counts_df$diagnosis_true) {
+          counts_df$anomalous[counts_df$diagnosis_true == neg_label]
+        } else {
+          0L
+        }
         .mlasdo_log_step(
-          "Anomaly detection finished (n = %d).",
-          nrow(anomalies_result$anomalies)
+          "Anomaly detection finished (%s n = %d; %s n = %d).",
+          pos_label,
+          pos_count,
+          neg_label,
+          neg_count
         )
       }
     } else {
