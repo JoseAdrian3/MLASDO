@@ -83,42 +83,35 @@ run_mlasdo(
 This snippet mirrors the full testing pipeline stored under `scripts/tests/tests.R` and shows explicit diagnostics before calling MLASDO:
 
 ```r
-omic_data_df     <- readRDS("data/datasets/omic_data_ppmi_sc_pc_nm_ids.rds")
-clinical_data_df <- readRDS("data/datasets/clinic_data_PPMI_SC_no_mutation.rds")
-
-cat("Number of columns (features):", ncol(omic_data_df), "\n")
-cat("Number of samples:", nrow(omic_data_df), "\n")
-
 run <- run_mlasdo(
-  omic_data                  = omic_data_df,
-  clinical_data              = clinical_data_df,
-  id_column                  = "participant_id",
-  target_column              = "diagnosis_type",
-  target_positive_class      = "Case",
-  target_negative_class      = "Control",
-  output_dir                 = "data/mlasdo_runs/run_ppmi_sc_pc_nm",
-  always_split_variables     = c("age_at_baseline", "sex"),
-  feature_selection_exec     = TRUE,
-  rf_mtry                    = unique(round(seq(2, floor(sqrt(ncol(omic_data_df))), length.out = 3))),
-  rf_splitrule               = c("gini", "extratrees", "hellinger"),
-  rf_min_node_size           = c(1, 5, 10),
-  rf_train_method            = "repeatedcv",
-  rf_train_number            = 10,
-  rf_train_repeats           = 5,
-  rf_num_trees               = 500,
-  rf_importance              = "permutation",
-  seed                       = 123,
-  svm_kernels                = c("linear", "radial", "polynomial"),
-  svm_linear_cost_values     = 10^seq(-4, 3, length = 8),
-  svm_radial_cost_values     = 10^seq(-4, 3, length = 8),
-  svm_radial_sigma_values    = 10^seq(-7, 0, length = 8),
-  svm_polynomial_cost_values = 10^seq(-4, 3, length = 8),
-  svm_polynomial_scale_values  = 10^seq(-7, 0, length = 8),
-  svm_polynomial_degree_values = 2:4,
-  svm_num_folds              = 10,
-  svm_sampling               = "down",
-  anomalies_method           = "sd",
-  anomalies_sd_multiplier    = 2
+  omic_data                     = omic_data_df,
+  clinical_data                 = clinical_data_df,
+  id_column                     = "participant_id",
+  target_column                 = "diagnosis_type",
+  target_positive_class         = "Case",
+  target_negative_class         = "Control",
+  output_dir                    = "mlasdo_runs/run_ppmi_sc_pc_nm",
+  always_split_variables        = c("age_at_baseline", "sex"),
+  rf_mtry                       = unique(round(seq(2, floor(sqrt(ncol(omic_data_df))), length.out = 3))),
+  rf_splitrule                  = c("gini", "extratrees", "hellinger"),
+  rf_min_node_size              = c(1, 5, 10),
+  rf_train_method               = "repeatedcv",
+  rf_train_number               = 10,
+  rf_train_repeats              = 5,
+  rf_num_trees                  = 500,
+  rf_importance                 = "permutation",
+  seed                          = 123,
+  svm_kernels                   = c("linear", "radial", "polynomial"),
+  svm_linear_cost_values        = 10^seq(-4, 3, length = 8),
+  svm_radial_cost_values        = 10^seq(-4, 3, length = 8),
+  svm_radial_sigma_values       = 10^seq(-7, 0, length = 8),
+  svm_polynomial_cost_values    = 10^seq(-4, 3, length = 8),
+  svm_polynomial_scale_values   = 10^seq(-7, 0, length = 8),
+  svm_polynomial_degree_values  = 2:4,
+  svm_num_folds                 = 10,
+  svm_sampling                  = "down",
+  anomalies_method              = "sd",
+  anomalies_sd_multiplier       = 2
 )
 ```
 
@@ -127,20 +120,21 @@ run <- run_mlasdo(
 When feature selection and SVM models are already available, you can replay only the anomaly detection (and downstream clinical tests) with a minimal call:
 
 ```r
-run_anomalies <- run_mlasdo(
-  omic_data                      = omic_data_df,
-  clinical_data                  = clinical_data_df,
-  id_column                      = "participant_id",
-  target_column                  = "diagnosis_type",
-  output_dir                     = "data/mlasdo_runs/run_ppmi_sc_pc_nm/anomaly_replay",
-  feature_selection_exec         = FALSE,
-  feature_selection_existing_dir = "data/mlasdo_runs/run_ppmi_sc_pc_nm/feature_selection",
-  svm_exec                       = FALSE,
-  svm_existing_dir               = "data/mlasdo_runs/run_ppmi_sc_pc_nm/svm_models",
-  anomalies_exec                 = TRUE,
-  anomalies_method               = "sd",
-  anomalies_sd_multiplier        = 2,
-  anomalies_output_dir           = "data/mlasdo_runs/run_ppmi_sc_pc_nm/anomaly_replay/anomalies"
+run_mlasdo(
+  omic_data                       = omic_data_df,
+  clinical_data                   = clinical_data_df,
+  id_column                       = "participant_id",
+  target_column                   = "diagnosis_type",
+  target_positive_class           = "Case",
+  target_negative_class           = "Control",
+  output_dir                      = "mlasdo_runs/run_ppmi_sc_pc_nm",
+  feature_selection_exec          = FALSE,
+  feature_selection_existing_dir  = "mlasdo_runs/run_ppmi_sc_pc_nm/feature_selection",
+  svm_exec                        = FALSE,
+  svm_existing_dir                = "mlasdo_runs/run_ppmi_sc_pc_nm/svm_models",
+  anomalies_exec                  = TRUE,
+  anomalies_method                = "sd",
+  anomalies_sd_multiplier         = 2
 )
 ```
 
@@ -158,7 +152,7 @@ Each run creates timestamped folders under `output_dir` including:
 
 - **Project Leaders**: Juan Antonio Botia Blaya · Alicia Gómez Pascual  
 - **Main Developer**: José Adrián Pardo Pérez
-
+- **Preprint**: arxiv.org/abs/2507.03656 
 ## Contact
 
 `joseadrian.pardop@um.es`
