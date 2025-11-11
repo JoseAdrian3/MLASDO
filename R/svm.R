@@ -157,6 +157,16 @@ mlasdo_train_svm_models <- function(omic_data,
     )
   }
 
+  sampling_fn <- sampling
+  if (is.character(sampling_fn)) {
+    if (length(sampling_fn) != 1L) {
+      stop("`sampling` must be length 1 when specified as a character string.")
+    }
+    if (identical(sampling_fn, "down")) {
+      sampling_fn <- .mlasdo_downsample_wrapper
+    }
+  }
+
   kernel_results <- list()
   for (kernel_name in names(kernel_configs)) {
     cfg <- kernel_configs[[kernel_name]]
@@ -172,7 +182,7 @@ mlasdo_train_svm_models <- function(omic_data,
       omic_data = omic_df,
       base_output_dir = output_dir,
       n_cores = n_cores,
-      sampling = sampling,
+      sampling = sampling_fn,
       positive_class = resolved_positive
     )
   }
